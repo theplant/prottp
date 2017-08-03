@@ -17,4 +17,4 @@ runjs: harness.ts testproto.d.ts testproto.js
 	yarn run ts-node harness.ts
 
 rungo: test.pb.go
-	go build .
+	go run harness.go test.pb.go

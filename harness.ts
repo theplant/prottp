@@ -1,21 +1,39 @@
-import * as proto from "./testproto"
-
-const resp = new proto.SearchResponse({ result: [{ url: "url", title: "title", snippets: "snippets" }]})
+import { main } from "./testproto";
+import fetch from "node-fetch";
 
 const mapping = {
-        searchAlt: "/altSearch",
-        search: "/search"
-}
+  searchAlt: "/SearchAlt",
+  search: "/Search"
+};
 
-const impl = (mapping: any) => (method: any, requestData: any, callback: any) => {
-    console.log("GET", mapping[method.name]);
-    console.log("200 OK", proto.SearchRequest.decode(requestData).toJSON())
-    callback(null, proto.SearchResponse.encode(resp).finish())
-}
+const impl = (mapping: any) => (
+  method: any,
+  requestData: any,
+  callback: any
+) => {
+  fetch(`http://localhost:8080${mapping[method.name]}`, {
+    method: "POST",
+    body: requestData
+  })
+    .then(response => response.buffer())
+    .then(text => callback(null, text))
+    .catch(err => callback(err, null));
+};
 
-const service = new proto.SearchService(impl(mapping))
+const service = new main.SearchService(impl(mapping));
 
-const request = new proto.SearchRequest({ query: "hello", pageNumber: 1, resultPerPage: 10 })
+const request = new main.SearchRequest({
+  query: "123",
+  pageNumber: 1,
+  resultPerPage: 10
+});
 
-service.search(request).then(res => console.log("result", res))
-service.searchAlt(request).then(res => console.log("result", res))
+service
+  .search(request)
+  .then(res => console.log("/Search result", res))
+  .catch(err => console.log("ERROR", err));
+
+service
+  .searchAlt(request)
+  .then(res => console.log("/SearchAlt result", res))
+  .catch(err => console.log("ERROR", err));
