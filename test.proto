@@ -22,3 +22,16 @@ service SearchService {
   rpc Search (SearchRequest) returns (SearchResponse);
   rpc SearchAlt (SearchRequest) returns (SearchResponse);
 }
+
+message AccountInfo {
+  string name = 1;
+}
+
+message GetAccountInfoParams {
+  string id = 1;
+}
+
+
+service AccountService {
+  rpc GetAccountInfo (GetAccountInfoParams) returns (AccountInfo);
+}
