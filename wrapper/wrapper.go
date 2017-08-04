@@ -9,7 +9,24 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Wrap(service interface{}, m grpc.MethodDesc) http.Handler {
+type Service interface {
+	Description() grpc.ServiceDesc
+}
+
+func Wrap(service Service) *http.ServeMux {
+	mux := http.NewServeMux()
+
+	d := service.Description()
+
+	for _, desc := range d.Methods {
+		fmt.Println(d.ServiceName + "/" + desc.MethodName)
+		mux.Handle("/"+d.ServiceName+"/"+desc.MethodName, wrapMethod(service, desc))
+	}
+
+	return mux
+}
+
+func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//func _SearchService_Search_Handler(
 		dec := func(i interface{}) error {

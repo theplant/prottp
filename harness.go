@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"google.golang.org/grpc"
+
 	"golang.org/x/net/context"
 
 	"./wrapper"
@@ -25,13 +27,16 @@ func (s search) SearchAlt(ctx context.Context, r *SearchRequest) (*SearchRespons
 
 }
 
+func (s search) Description() grpc.ServiceDesc {
+	return _SearchService_serviceDesc
+}
+
 func main() {
-	mux := http.NewServeMux()
 	s := search{}
 
-	for _, desc := range _SearchService_serviceDesc.Methods {
-		mux.Handle("/"+desc.MethodName, wrapper.Wrap(s, desc))
-	}
+	mux := wrapper.Wrap(s)
+
 	fmt.Println("OK, GO")
+
 	http.ListenAndServe(":8080", mux)
 }
