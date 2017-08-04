@@ -2,8 +2,8 @@ import { main } from "./testproto";
 import fetch from "node-fetch";
 
 const mapping = {
-  searchAlt: "/SearchAlt",
-  search: "/Search"
+  searchAlt: "/main.SearchService/SearchAlt",
+  search: "/main.SearchService/Search"
 };
 
 const impl = (mapping: any) => (

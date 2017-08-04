@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/theplant/appkit/server"
 	"google.golang.org/grpc"
 )
 
@@ -13,14 +14,24 @@ type Service interface {
 	Description() grpc.ServiceDesc
 }
 
-func Wrap(service Service) *http.ServeMux {
+func Handle(mux *http.ServeMux, service Service, mws ...server.Middleware) {
+	sn := service.Description().ServiceName
+	fmt.Println("/" + sn)
+	hd := Wrap(service)
+	if len(mws) > 0 {
+		hd = server.Compose(mws...)(hd)
+	}
+	mux.Handle("/"+sn+"/", http.StripPrefix("/"+sn, hd))
+}
+
+func Wrap(service Service) http.Handler {
 	mux := http.NewServeMux()
 
 	d := service.Description()
 
 	for _, desc := range d.Methods {
-		fmt.Println(d.ServiceName + "/" + desc.MethodName)
-		mux.Handle("/"+d.ServiceName+"/"+desc.MethodName, wrapMethod(service, desc))
+		fmt.Println("/" + d.ServiceName + "/" + desc.MethodName)
+		mux.Handle("/"+desc.MethodName, wrapMethod(service, desc))
 	}
 
 	return mux
