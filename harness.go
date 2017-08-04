@@ -60,8 +60,8 @@ func main() {
 	a := account{}
 	s := search{}
 
-	wrapper.Handle(mux, a, mustLogin(wrapper.Wrap(a)))
-	wrapper.Handle(mux, s, wrapper.Wrap(s))
+	wrapper.Handle(mux, a, mustLogin)
+	wrapper.Handle(mux, s)
 
 	l := log.Default()
 	defaultmws := server.Compose(
