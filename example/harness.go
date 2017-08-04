@@ -10,7 +10,7 @@ import (
 
 	"github.com/theplant/appkit/log"
 	"github.com/theplant/appkit/server"
-	"github.com/theplant/protobuftoy/wrapper"
+	"github.com/theplant/prottp"
 )
 
 type search struct{}
@@ -60,8 +60,8 @@ func main() {
 	a := account{}
 	s := search{}
 
-	wrapper.Handle(mux, a, mustLogin)
-	wrapper.Handle(mux, s)
+	prottp.Handle(mux, a, mustLogin)
+	prottp.Handle(mux, s)
 
 	l := log.Default()
 	defaultmws := server.Compose(
