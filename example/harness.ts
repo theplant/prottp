@@ -1,17 +1,17 @@
 import { main } from "./testproto";
 import fetch from "node-fetch";
+import UrlMapper from "./urlmapper";
 
-const mapping = {
-  searchAlt: "/main.SearchService/SearchAlt",
-  search: "/main.SearchService/Search"
-};
+var mapping = new UrlMapper(main, "main");
 
-const impl = (mapping: any) => (
+const impl = (mapping: UrlMapper) => (
   method: any,
   requestData: any,
   callback: any
 ) => {
-  fetch(`http://localhost:8080${mapping[method.name]}`, {
+  console.log("calling url: ", mapping.urlOf(method));
+
+  fetch(`http://localhost:8080${mapping.urlOf(method)}`, {
     method: "POST",
     body: requestData
   })
@@ -29,11 +29,20 @@ const request = new main.SearchRequest({
 });
 
 service
-  .search(request)
-  .then(res => console.log("/Search result", res))
+  .searchAlt(request)
+  .then(res => console.log("/main.SearchService/SearchAlt result", res))
   .catch(err => console.log("ERROR", err));
 
 service
-  .searchAlt(request)
-  .then(res => console.log("/SearchAlt result", res))
+  .search(request)
+  .then(res => console.log("/main.SearchService/Search result", res))
+  .catch(err => console.log("ERROR", err));
+
+const account = new main.AccountService(impl(mapping));
+
+const accountParams = new main.GetAccountInfoParams();
+
+account
+  .search(accountParams)
+  .then(res => console.log("/main.AccountService/Search result", res))
   .catch(err => console.log("ERROR", err));
