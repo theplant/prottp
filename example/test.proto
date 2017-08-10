@@ -34,4 +34,5 @@ message GetAccountInfoParams {
 
 service AccountService {
   rpc GetAccountInfo (GetAccountInfoParams) returns (AccountInfo);
+  rpc Search (GetAccountInfoParams) returns (SearchResponse);
 }

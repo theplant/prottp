@@ -35,6 +35,13 @@ func (s search) Description() grpc.ServiceDesc {
 
 type account struct{}
 
+func (s account) Search(ctx context.Context, r *GetAccountInfoParams) (*SearchResponse, error) {
+	fmt.Println("SEARCH IN ACCOUNT", r)
+	return &SearchResponse{
+		Result: []*Result{&Result{Url: r.Id}}}, nil
+
+}
+
 func (s account) GetAccountInfo(ctx context.Context, r *GetAccountInfoParams) (*AccountInfo, error) {
 	fmt.Println("GetAccountInfo", r)
 	return &AccountInfo{}, nil
@@ -47,9 +54,10 @@ func (s account) Description() grpc.ServiceDesc {
 
 func mustLogin(in http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if true {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		}
+		// if true {
+		// 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// }
+		fmt.Println("through mustLogin")
 		in.ServeHTTP(w, r)
 	})
 }

@@ -362,4 +362,250 @@ export namespace main {
          */
         type SearchAltCallback = (error: (Error|null), response?: main.SearchResponse) => void;
     }
+
+    /** Properties of an AccountInfo. */
+    interface IAccountInfo {
+
+        /** AccountInfo name */
+        name?: string;
+    }
+
+    /** Represents an AccountInfo. */
+    class AccountInfo {
+
+        /**
+         * Constructs a new AccountInfo.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: main.IAccountInfo);
+
+        /** AccountInfo name. */
+        public name: string;
+
+        /**
+         * Creates a new AccountInfo instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns AccountInfo instance
+         */
+        public static create(properties?: main.IAccountInfo): main.AccountInfo;
+
+        /**
+         * Encodes the specified AccountInfo message. Does not implicitly {@link main.AccountInfo.verify|verify} messages.
+         * @param message AccountInfo message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: main.IAccountInfo, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified AccountInfo message, length delimited. Does not implicitly {@link main.AccountInfo.verify|verify} messages.
+         * @param message AccountInfo message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: main.IAccountInfo, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an AccountInfo message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns AccountInfo
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): main.AccountInfo;
+
+        /**
+         * Decodes an AccountInfo message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns AccountInfo
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): main.AccountInfo;
+
+        /**
+         * Verifies an AccountInfo message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an AccountInfo message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns AccountInfo
+         */
+        public static fromObject(object: { [k: string]: any }): main.AccountInfo;
+
+        /**
+         * Creates a plain object from an AccountInfo message. Also converts values to other types if specified.
+         * @param message AccountInfo
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: main.AccountInfo, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this AccountInfo to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a GetAccountInfoParams. */
+    interface IGetAccountInfoParams {
+
+        /** GetAccountInfoParams id */
+        id?: string;
+    }
+
+    /** Represents a GetAccountInfoParams. */
+    class GetAccountInfoParams {
+
+        /**
+         * Constructs a new GetAccountInfoParams.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: main.IGetAccountInfoParams);
+
+        /** GetAccountInfoParams id. */
+        public id: string;
+
+        /**
+         * Creates a new GetAccountInfoParams instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns GetAccountInfoParams instance
+         */
+        public static create(properties?: main.IGetAccountInfoParams): main.GetAccountInfoParams;
+
+        /**
+         * Encodes the specified GetAccountInfoParams message. Does not implicitly {@link main.GetAccountInfoParams.verify|verify} messages.
+         * @param message GetAccountInfoParams message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: main.IGetAccountInfoParams, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified GetAccountInfoParams message, length delimited. Does not implicitly {@link main.GetAccountInfoParams.verify|verify} messages.
+         * @param message GetAccountInfoParams message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: main.IGetAccountInfoParams, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a GetAccountInfoParams message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns GetAccountInfoParams
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): main.GetAccountInfoParams;
+
+        /**
+         * Decodes a GetAccountInfoParams message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns GetAccountInfoParams
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): main.GetAccountInfoParams;
+
+        /**
+         * Verifies a GetAccountInfoParams message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a GetAccountInfoParams message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns GetAccountInfoParams
+         */
+        public static fromObject(object: { [k: string]: any }): main.GetAccountInfoParams;
+
+        /**
+         * Creates a plain object from a GetAccountInfoParams message. Also converts values to other types if specified.
+         * @param message GetAccountInfoParams
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: main.GetAccountInfoParams, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this GetAccountInfoParams to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Represents an AccountService */
+    class AccountService extends $protobuf.rpc.Service {
+
+        /**
+         * Constructs a new AccountService service.
+         * @param rpcImpl RPC implementation
+         * @param [requestDelimited=false] Whether requests are length-delimited
+         * @param [responseDelimited=false] Whether responses are length-delimited
+         */
+        constructor(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean);
+
+        /**
+         * Creates new AccountService service using the specified rpc implementation.
+         * @param rpcImpl RPC implementation
+         * @param [requestDelimited=false] Whether requests are length-delimited
+         * @param [responseDelimited=false] Whether responses are length-delimited
+         * @returns RPC service. Useful where requests and/or responses are streamed.
+         */
+        public static create(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean): AccountService;
+
+        /**
+         * Calls GetAccountInfo.
+         * @param request GetAccountInfoParams message or plain object
+         * @param callback Node-style callback called with the error, if any, and AccountInfo
+         */
+        public getAccountInfo(request: main.IGetAccountInfoParams, callback: main.AccountService.GetAccountInfoCallback): void;
+
+        /**
+         * Calls GetAccountInfo.
+         * @param request GetAccountInfoParams message or plain object
+         * @returns Promise
+         */
+        public getAccountInfo(request: main.IGetAccountInfoParams): Promise<main.AccountInfo>;
+
+        /**
+         * Calls Search.
+         * @param request GetAccountInfoParams message or plain object
+         * @param callback Node-style callback called with the error, if any, and SearchResponse
+         */
+        public search(request: main.IGetAccountInfoParams, callback: main.AccountService.SearchCallback): void;
+
+        /**
+         * Calls Search.
+         * @param request GetAccountInfoParams message or plain object
+         * @returns Promise
+         */
+        public search(request: main.IGetAccountInfoParams): Promise<main.SearchResponse>;
+    }
+
+    namespace AccountService {
+
+        /**
+         * Callback as used by {@link main.AccountService#getAccountInfo}.
+         * @param error Error, if any
+         * @param [response] AccountInfo
+         */
+        type GetAccountInfoCallback = (error: (Error|null), response?: main.AccountInfo) => void;
+
+        /**
+         * Callback as used by {@link main.AccountService#search}.
+         * @param error Error, if any
+         * @param [response] SearchResponse
+         */
+        type SearchCallback = (error: (Error|null), response?: main.SearchResponse) => void;
+    }
 }
