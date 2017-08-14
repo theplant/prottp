@@ -1,9 +1,11 @@
 package prottp
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/theplant/appkit/server"
@@ -39,11 +41,15 @@ func Wrap(service Service) http.Handler {
 
 func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isJson := strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
 		//func _SearchService_Search_Handler(
 		dec := func(i interface{}) error {
 			buff, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				return err
+			}
+			if isJson {
+				return json.Unmarshal(buff, i)
 			}
 			return proto.Unmarshal(buff, i.(proto.Message))
 		}
@@ -65,8 +71,13 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			interceptor)
 
 		fmt.Println("handler error", err)
-
-		b, err := proto.Marshal(resp.(proto.Message))
+		var b []byte
+		if isJson {
+			w.Header().Add("Content-Type", "application/json")
+			b, err = json.Marshal(resp)
+		} else {
+			b, err = proto.Marshal(resp.(proto.Message))
+		}
 
 		fmt.Println("marshal error", err)
 
