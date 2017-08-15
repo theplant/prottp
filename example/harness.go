@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -24,8 +25,7 @@ func (s search) Search(ctx context.Context, r *SearchRequest) (*SearchResponse, 
 
 func (s search) SearchAlt(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
 	fmt.Println("SEARCH ALT", r)
-	return &SearchResponse{
-		Result: []*Result{&Result{Url: "Search alt"}}}, nil
+	return nil, errors.New("You got an error")
 
 }
 
@@ -39,7 +39,6 @@ func (s account) GetAccountInfo(ctx context.Context, r *GetAccountInfoParams) (*
 	fmt.Println("AccountID", r)
 	fmt.Println("GetAccountInfo", r)
 	return &AccountInfo{}, nil
-
 }
 
 func (s account) Description() grpc.ServiceDesc {
@@ -56,14 +55,25 @@ func mustLogin(in http.Handler) http.Handler {
 	})
 }
 
+func errHandler(in http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("errHandler before call next")
+		in.ServeHTTP(w, r)
+		fmt.Println("prottp.ExecutionError(r.Context()) = ", prottp.ExecutionError(r.Context()))
+		if err := prottp.ExecutionError(r.Context()); err != nil {
+			panic(err)
+		}
+	})
+}
+
 func main() {
 
 	mux := http.NewServeMux()
 	a := account{}
 	s := search{}
 
-	prottp.Handle(mux, a, mustLogin)
-	prottp.Handle(mux, s)
+	prottp.Handle(mux, a, errHandler, prottp.Middleware(a), mustLogin)
+	prottp.Handle(mux, s, errHandler, prottp.Middleware(s))
 
 	l := log.Default()
 	defaultmws := server.Compose(
