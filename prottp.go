@@ -1,6 +1,7 @@
 package prottp
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -17,27 +18,31 @@ type Service interface {
 	Description() grpc.ServiceDesc
 }
 
+var noop = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// fmt.Println("In NOOP")
+	return
+})
+
 func Handle(mux *http.ServeMux, service Service, mws ...server.Middleware) {
 	sn := service.Description().ServiceName
 	fmt.Println("/" + sn)
-	hd := Wrap(service)
-	if len(mws) > 0 {
-		hd = server.Compose(mws...)(hd)
-	}
+	hd := server.Compose(mws...)(noop)
 	mux.Handle("/"+sn+"/", http.StripPrefix("/"+sn, hd))
 }
 
-func Wrap(service Service) http.Handler {
-	mux := http.NewServeMux()
+func Middleware(service Service) server.Middleware {
+	return func(in http.Handler) http.Handler {
+		mux := http.NewServeMux()
 
-	d := service.Description()
+		d := service.Description()
 
-	for _, desc := range d.Methods {
-		fmt.Println("/" + d.ServiceName + "/" + desc.MethodName)
-		mux.Handle("/"+desc.MethodName, wrapMethod(service, desc))
+		for _, desc := range d.Methods {
+			path := fmt.Sprintf("/%s", desc.MethodName)
+			fmt.Println("/" + d.ServiceName + "/" + desc.MethodName)
+			mux.Handle(path, wrapMethod(service, desc, in))
+		}
+		return mux
 	}
-
-	return mux
 }
 
 var marshaler = jsonpb.Marshaler{
@@ -47,7 +52,16 @@ var marshaler = jsonpb.Marshaler{
 	OrigName:     true,
 }
 
-func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
+const contextErrorKey = "prottp.contextErrorKey"
+
+func ExecutionError(ctx context.Context) (err error) {
+	if v := ctx.Value(contextErrorKey); v != nil {
+		err = v.(error)
+	}
+	return
+}
+
+func wrapMethod(service interface{}, m grpc.MethodDesc, in http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		isJson := strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
 		//func _SearchService_Search_Handler(
@@ -80,7 +94,10 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			interceptor)
 
 		if err != nil {
-			panic(err)
+			fmt.Println("setting execution error to context: ", err)
+			r = r.WithContext(context.WithValue(r.Context(), contextErrorKey, err))
+			in.ServeHTTP(w, r)
+			return
 		}
 
 		if isJson {
