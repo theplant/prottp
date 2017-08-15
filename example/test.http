@@ -2,5 +2,5 @@ GET http://localhost:8080/main.SearchService/Search
 content-type: application/json
 
 {
-    "query": "the query string"
+    "query": "XE123"
 }

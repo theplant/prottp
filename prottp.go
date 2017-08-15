@@ -1,11 +1,12 @@
 package prottp
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/golang/protobuf/jsonpb"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/theplant/appkit/server"
@@ -39,17 +40,25 @@ func Wrap(service Service) http.Handler {
 	return mux
 }
 
+var marshaler = jsonpb.Marshaler{
+	EnumsAsInts:  false,
+	EmitDefaults: false,
+	Indent:       "\t",
+	OrigName:     true,
+}
+
 func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		isJson := strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
 		//func _SearchService_Search_Handler(
 		dec := func(i interface{}) error {
+			if isJson {
+				return jsonpb.Unmarshal(r.Body, i.(proto.Message))
+			}
+
 			buff, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				return err
-			}
-			if isJson {
-				return json.Unmarshal(buff, i)
 			}
 			return proto.Unmarshal(buff, i.(proto.Message))
 		}
@@ -70,17 +79,24 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			//interceptor grpc.UnaryServerInterceptor
 			interceptor)
 
-		fmt.Println("handler error", err)
-		var b []byte
-		if isJson {
-			w.Header().Add("Content-Type", "application/json")
-			b, err = json.Marshal(resp)
-		} else {
-			b, err = proto.Marshal(resp.(proto.Message))
+		if err != nil {
+			panic(err)
 		}
 
-		fmt.Println("marshal error", err)
+		if isJson {
+			w.Header().Add("Content-Type", "application/json")
+			err = marshaler.Marshal(w, resp.(proto.Message))
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			var b []byte
+			b, err = proto.Marshal(resp.(proto.Message))
+			if err != nil {
+				panic(err)
+			}
+			w.Write(b)
+		}
 
-		w.Write(b)
 	})
 }

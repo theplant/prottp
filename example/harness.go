@@ -36,6 +36,7 @@ func (s search) Description() grpc.ServiceDesc {
 type account struct{}
 
 func (s account) GetAccountInfo(ctx context.Context, r *GetAccountInfoParams) (*AccountInfo, error) {
+	fmt.Println("AccountID", r)
 	fmt.Println("GetAccountInfo", r)
 	return &AccountInfo{}, nil
 
@@ -50,6 +51,7 @@ func mustLogin(in http.Handler) http.Handler {
 		if true {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		}
+		r = r.WithContext(context.WithValue(r.Context(), "AccountID", 1))
 		in.ServeHTTP(w, r)
 	})
 }
