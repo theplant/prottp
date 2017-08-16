@@ -1,4 +1,4 @@
-GET http://localhost:8080/main.SearchService/Search
+GET http://localhost:8080/example.SearchService/Search
 content-type: application/json
 
 {
