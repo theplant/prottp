@@ -19,8 +19,10 @@ type search struct{}
 func (s search) Search(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
 	fmt.Println("SEARCH", r)
 	return &SearchResponse{
-		Result: []*Result{&Result{Url: r.Query}}}, nil
-
+		Result: []*Result{
+			{Url: r.Query, SomeSnakedName: 2},
+		},
+	}, nil
 }
 
 func (s search) SearchAlt(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {

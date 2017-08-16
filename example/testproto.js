@@ -672,6 +672,7 @@ export const example = $root.example = (() => {
          * @property {string} [url] Result url
          * @property {string} [title] Result title
          * @property {string} [snippets] Result snippets
+         * @property {number} [someSnakedName] Result someSnakedName
          */
 
         /**
@@ -713,6 +714,14 @@ export const example = $root.example = (() => {
         Result.prototype.snippets = "";
 
         /**
+         * Result someSnakedName.
+         * @member {number}someSnakedName
+         * @memberof example.Result
+         * @instance
+         */
+        Result.prototype.someSnakedName = 0;
+
+        /**
          * Creates a new Result instance using the specified properties.
          * @function create
          * @memberof example.Result
@@ -742,6 +751,8 @@ export const example = $root.example = (() => {
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.title);
             if (message.snippets != null && message.hasOwnProperty("snippets"))
                 writer.uint32(/* id 3, wireType 2 =*/26).string(message.snippets);
+            if (message.someSnakedName != null && message.hasOwnProperty("someSnakedName"))
+                writer.uint32(/* id 4, wireType 0 =*/32).int32(message.someSnakedName);
             return writer;
         };
 
@@ -784,6 +795,9 @@ export const example = $root.example = (() => {
                     break;
                 case 3:
                     message.snippets = reader.string();
+                    break;
+                case 4:
+                    message.someSnakedName = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -829,6 +843,9 @@ export const example = $root.example = (() => {
             if (message.snippets != null && message.hasOwnProperty("snippets"))
                 if (!$util.isString(message.snippets))
                     return "snippets: string expected";
+            if (message.someSnakedName != null && message.hasOwnProperty("someSnakedName"))
+                if (!$util.isInteger(message.someSnakedName))
+                    return "someSnakedName: integer expected";
             return null;
         };
 
@@ -850,6 +867,8 @@ export const example = $root.example = (() => {
                 message.title = String(object.title);
             if (object.snippets != null)
                 message.snippets = String(object.snippets);
+            if (object.someSnakedName != null)
+                message.someSnakedName = object.someSnakedName | 0;
             return message;
         };
 
@@ -870,6 +889,7 @@ export const example = $root.example = (() => {
                 object.url = "";
                 object.title = "";
                 object.snippets = "";
+                object.someSnakedName = 0;
             }
             if (message.url != null && message.hasOwnProperty("url"))
                 object.url = message.url;
@@ -877,6 +897,8 @@ export const example = $root.example = (() => {
                 object.title = message.title;
             if (message.snippets != null && message.hasOwnProperty("snippets"))
                 object.snippets = message.snippets;
+            if (message.someSnakedName != null && message.hasOwnProperty("someSnakedName"))
+                object.someSnakedName = message.someSnakedName;
             return object;
         };
 

@@ -39,7 +39,8 @@ var cases = []struct {
 {
 	"result": [
 		{
-			"url": "query string"
+			"url": "query string",
+			"some_snaked_name": 2
 		}
 	]
 }`,
@@ -56,7 +57,7 @@ var cases = []struct {
 		},
 		ExpectedPBResBody: &example.SearchResponse{
 			Result: []*example.Result{
-				{Url: "query string protobuf"},
+				{Url: "query string protobuf", SomeSnakedName: 2},
 			},
 		},
 	},

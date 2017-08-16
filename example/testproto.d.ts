@@ -302,6 +302,9 @@ export namespace example {
 
         /** Result snippets */
         snippets?: string;
+
+        /** Result someSnakedName */
+        someSnakedName?: number;
     }
 
     /** Represents a Result. */
@@ -321,6 +324,9 @@ export namespace example {
 
         /** Result snippets. */
         public snippets: string;
+
+        /** Result someSnakedName. */
+        public someSnakedName: number;
 
         /**
          * Creates a new Result instance using the specified properties.
