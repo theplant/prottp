@@ -1,0 +1,6 @@
+GET http://localhost:8080/example.SearchService/Search
+content-type: application/json
+
+{
+    "query": "XE123"
+}

@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
+
+	"github.com/golang/protobuf/jsonpb"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/theplant/appkit/server"
@@ -12,6 +15,45 @@ import (
 
 type Service interface {
 	Description() grpc.ServiceDesc
+}
+
+type HTTPStatusError interface {
+	HTTPStatusCode() int
+}
+
+type ErrorResponse interface {
+	Message() proto.Message
+}
+
+type ErrorWithStatus interface {
+	HTTPStatusError
+	ErrorResponse
+	error
+}
+
+type respError struct {
+	statusCode   int
+	errorMessage string
+	body         proto.Message
+}
+
+func (re *respError) Message() proto.Message {
+	return re.body
+}
+
+func (re *respError) HTTPStatusCode() int {
+	if re.statusCode == 0 {
+		return http.StatusUnprocessableEntity
+	}
+	return re.statusCode
+}
+
+func (re *respError) Error() string {
+	return re.errorMessage
+}
+
+func NewError(statusCode int, errorMessage string, body proto.Message) ErrorWithStatus {
+	return &respError{statusCode: statusCode, errorMessage: errorMessage, body: body}
 }
 
 func Handle(mux *http.ServeMux, service Service, mws ...server.Middleware) {
@@ -37,10 +79,25 @@ func Wrap(service Service) http.Handler {
 	return mux
 }
 
+var marshaler = jsonpb.Marshaler{
+	EnumsAsInts:  false,
+	EmitDefaults: false,
+	Indent:       "\t",
+	OrigName:     true,
+}
+
+var unmarshaler = jsonpb.Unmarshaler{
+	AllowUnknownFields: false,
+}
+
 func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//func _SearchService_Search_Handler(
+		isJson := strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
 		dec := func(i interface{}) error {
+			if isJson {
+				return unmarshaler.Unmarshal(r.Body, i.(proto.Message))
+			}
+
 			buff, err := ioutil.ReadAll(r.Body)
 			if err != nil {
 				return err
@@ -64,12 +121,45 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			//interceptor grpc.UnaryServerInterceptor
 			interceptor)
 
-		fmt.Println("handler error", err)
+		if isJson {
+			w.Header().Add("Content-Type", "application/json")
+		}
 
-		b, err := proto.Marshal(resp.(proto.Message))
+		if err != nil {
+			handled := false
+			if statusErr, ok := err.(HTTPStatusError); ok {
+				w.WriteHeader(statusErr.HTTPStatusCode())
+				handled = true
+			}
+			if msgErr, ok := err.(ErrorResponse); ok {
+				writeMessage(isJson, msgErr.Message(), w)
+				handled = true
+			}
 
-		fmt.Println("marshal error", err)
+			if !handled {
+				panic(err)
+			}
+			return
+		}
 
-		w.Write(b)
+		w.WriteHeader(http.StatusOK)
+		writeMessage(isJson, resp.(proto.Message), w)
 	})
+}
+
+func writeMessage(isJson bool, msg proto.Message, w http.ResponseWriter) {
+	var err error
+	if isJson {
+		err = marshaler.Marshal(w, msg)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		var b []byte
+		b, err = proto.Marshal(msg)
+		if err != nil {
+			panic(err)
+		}
+		w.Write(b)
+	}
 }
