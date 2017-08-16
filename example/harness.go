@@ -1,17 +1,18 @@
-package main
+package example
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 
 	"google.golang.org/grpc"
 
 	"golang.org/x/net/context"
 
-	"github.com/theplant/appkit/log"
-	"github.com/theplant/appkit/server"
 	"github.com/theplant/prottp"
 )
+
+var _ SearchServiceServer = (*search)(nil)
 
 type search struct{}
 
@@ -27,6 +28,16 @@ func (s search) SearchAlt(ctx context.Context, r *SearchRequest) (*SearchRespons
 	return &SearchResponse{
 		Result: []*Result{&Result{Url: "Search alt"}}}, nil
 
+}
+
+func (s search) SearchReturnError(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
+	fmt.Println("SearchReturnError", r)
+	return nil, prottp.NewError(500, "wrong message", &SearchError{Field: "field123", ErrorCount: 100})
+}
+
+func (s search) SearchWithUnexpectedError(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
+	fmt.Println("SearchWithUnexpectedError", r)
+	return nil, io.EOF
 }
 
 func (s search) Description() grpc.ServiceDesc {
@@ -56,20 +67,10 @@ func mustLogin(in http.Handler) http.Handler {
 	})
 }
 
-func main() {
-
-	mux := http.NewServeMux()
+func Mount(mux *http.ServeMux) {
 	a := account{}
 	s := search{}
 
 	prottp.Handle(mux, a, mustLogin)
 	prottp.Handle(mux, s)
-
-	l := log.Default()
-	defaultmws := server.Compose(
-		server.DefaultMiddleware(l),
-	)
-
-	fmt.Println("OK, GO")
-	http.ListenAndServe(":8080", defaultmws(mux))
 }

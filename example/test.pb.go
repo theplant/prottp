@@ -3,7 +3,7 @@
 // DO NOT EDIT!
 
 /*
-Package main is a generated protocol buffer package.
+Package example is a generated protocol buffer package.
 
 It is generated from these files:
 	test.proto
@@ -11,11 +11,12 @@ It is generated from these files:
 It has these top-level messages:
 	SearchRequest
 	SearchResponse
+	SearchError
 	Result
 	AccountInfo
 	GetAccountInfoParams
 */
-package main
+package example
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
@@ -85,6 +86,30 @@ func (m *SearchResponse) GetResult() []*Result {
 	return nil
 }
 
+type SearchError struct {
+	Field      string `protobuf:"bytes,1,opt,name=field" json:"field,omitempty"`
+	ErrorCount int32  `protobuf:"varint,2,opt,name=error_count,json=errorCount" json:"error_count,omitempty"`
+}
+
+func (m *SearchError) Reset()                    { *m = SearchError{} }
+func (m *SearchError) String() string            { return proto.CompactTextString(m) }
+func (*SearchError) ProtoMessage()               {}
+func (*SearchError) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *SearchError) GetField() string {
+	if m != nil {
+		return m.Field
+	}
+	return ""
+}
+
+func (m *SearchError) GetErrorCount() int32 {
+	if m != nil {
+		return m.ErrorCount
+	}
+	return 0
+}
+
 type Result struct {
 	Url      string `protobuf:"bytes,1,opt,name=url" json:"url,omitempty"`
 	Title    string `protobuf:"bytes,2,opt,name=title" json:"title,omitempty"`
@@ -94,7 +119,7 @@ type Result struct {
 func (m *Result) Reset()                    { *m = Result{} }
 func (m *Result) String() string            { return proto.CompactTextString(m) }
 func (*Result) ProtoMessage()               {}
-func (*Result) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*Result) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
 func (m *Result) GetUrl() string {
 	if m != nil {
@@ -124,7 +149,7 @@ type AccountInfo struct {
 func (m *AccountInfo) Reset()                    { *m = AccountInfo{} }
 func (m *AccountInfo) String() string            { return proto.CompactTextString(m) }
 func (*AccountInfo) ProtoMessage()               {}
-func (*AccountInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*AccountInfo) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *AccountInfo) GetName() string {
 	if m != nil {
@@ -140,7 +165,7 @@ type GetAccountInfoParams struct {
 func (m *GetAccountInfoParams) Reset()                    { *m = GetAccountInfoParams{} }
 func (m *GetAccountInfoParams) String() string            { return proto.CompactTextString(m) }
 func (*GetAccountInfoParams) ProtoMessage()               {}
-func (*GetAccountInfoParams) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (*GetAccountInfoParams) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *GetAccountInfoParams) GetId() string {
 	if m != nil {
@@ -150,11 +175,12 @@ func (m *GetAccountInfoParams) GetId() string {
 }
 
 func init() {
-	proto.RegisterType((*SearchRequest)(nil), "main.SearchRequest")
-	proto.RegisterType((*SearchResponse)(nil), "main.SearchResponse")
-	proto.RegisterType((*Result)(nil), "main.Result")
-	proto.RegisterType((*AccountInfo)(nil), "main.AccountInfo")
-	proto.RegisterType((*GetAccountInfoParams)(nil), "main.GetAccountInfoParams")
+	proto.RegisterType((*SearchRequest)(nil), "example.SearchRequest")
+	proto.RegisterType((*SearchResponse)(nil), "example.SearchResponse")
+	proto.RegisterType((*SearchError)(nil), "example.SearchError")
+	proto.RegisterType((*Result)(nil), "example.Result")
+	proto.RegisterType((*AccountInfo)(nil), "example.AccountInfo")
+	proto.RegisterType((*GetAccountInfoParams)(nil), "example.GetAccountInfoParams")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -170,6 +196,8 @@ const _ = grpc.SupportPackageIsVersion4
 type SearchServiceClient interface {
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
 	SearchAlt(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	SearchReturnError(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	SearchWithUnexpectedError(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
 }
 
 type searchServiceClient struct {
@@ -182,7 +210,7 @@ func NewSearchServiceClient(cc *grpc.ClientConn) SearchServiceClient {
 
 func (c *searchServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
 	out := new(SearchResponse)
-	err := grpc.Invoke(ctx, "/main.SearchService/Search", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/example.SearchService/Search", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +219,25 @@ func (c *searchServiceClient) Search(ctx context.Context, in *SearchRequest, opt
 
 func (c *searchServiceClient) SearchAlt(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
 	out := new(SearchResponse)
-	err := grpc.Invoke(ctx, "/main.SearchService/SearchAlt", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/example.SearchService/SearchAlt", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *searchServiceClient) SearchReturnError(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
+	out := new(SearchResponse)
+	err := grpc.Invoke(ctx, "/example.SearchService/SearchReturnError", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *searchServiceClient) SearchWithUnexpectedError(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
+	out := new(SearchResponse)
+	err := grpc.Invoke(ctx, "/example.SearchService/SearchWithUnexpectedError", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -203,6 +249,8 @@ func (c *searchServiceClient) SearchAlt(ctx context.Context, in *SearchRequest, 
 type SearchServiceServer interface {
 	Search(context.Context, *SearchRequest) (*SearchResponse, error)
 	SearchAlt(context.Context, *SearchRequest) (*SearchResponse, error)
+	SearchReturnError(context.Context, *SearchRequest) (*SearchResponse, error)
+	SearchWithUnexpectedError(context.Context, *SearchRequest) (*SearchResponse, error)
 }
 
 func RegisterSearchServiceServer(s *grpc.Server, srv SearchServiceServer) {
@@ -219,7 +267,7 @@ func _SearchService_Search_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/main.SearchService/Search",
+		FullMethod: "/example.SearchService/Search",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SearchServiceServer).Search(ctx, req.(*SearchRequest))
@@ -237,7 +285,7 @@ func _SearchService_SearchAlt_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/main.SearchService/SearchAlt",
+		FullMethod: "/example.SearchService/SearchAlt",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SearchServiceServer).SearchAlt(ctx, req.(*SearchRequest))
@@ -245,8 +293,44 @@ func _SearchService_SearchAlt_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SearchService_SearchReturnError_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServiceServer).SearchReturnError(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/example.SearchService/SearchReturnError",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServiceServer).SearchReturnError(ctx, req.(*SearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SearchService_SearchWithUnexpectedError_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServiceServer).SearchWithUnexpectedError(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/example.SearchService/SearchWithUnexpectedError",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServiceServer).SearchWithUnexpectedError(ctx, req.(*SearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _SearchService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "main.SearchService",
+	ServiceName: "example.SearchService",
 	HandlerType: (*SearchServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -256,6 +340,14 @@ var _SearchService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchAlt",
 			Handler:    _SearchService_SearchAlt_Handler,
+		},
+		{
+			MethodName: "SearchReturnError",
+			Handler:    _SearchService_SearchReturnError_Handler,
+		},
+		{
+			MethodName: "SearchWithUnexpectedError",
+			Handler:    _SearchService_SearchWithUnexpectedError_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -278,7 +370,7 @@ func NewAccountServiceClient(cc *grpc.ClientConn) AccountServiceClient {
 
 func (c *accountServiceClient) GetAccountInfo(ctx context.Context, in *GetAccountInfoParams, opts ...grpc.CallOption) (*AccountInfo, error) {
 	out := new(AccountInfo)
-	err := grpc.Invoke(ctx, "/main.AccountService/GetAccountInfo", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/example.AccountService/GetAccountInfo", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -305,7 +397,7 @@ func _AccountService_GetAccountInfo_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/main.AccountService/GetAccountInfo",
+		FullMethod: "/example.AccountService/GetAccountInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AccountServiceServer).GetAccountInfo(ctx, req.(*GetAccountInfoParams))
@@ -314,7 +406,7 @@ func _AccountService_GetAccountInfo_Handler(srv interface{}, ctx context.Context
 }
 
 var _AccountService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "main.AccountService",
+	ServiceName: "example.AccountService",
 	HandlerType: (*AccountServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -329,26 +421,30 @@ var _AccountService_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("test.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 321 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x94, 0x92, 0x4f, 0x4b, 0xc3, 0x40,
-	0x10, 0xc5, 0x49, 0xff, 0x04, 0x33, 0xb5, 0x51, 0xc7, 0x1e, 0x42, 0x2e, 0xd6, 0x20, 0xa5, 0xa7,
-	0x1e, 0x5a, 0xe8, 0x55, 0x7a, 0x12, 0x41, 0xa4, 0x6e, 0x3f, 0x40, 0xd9, 0xa6, 0x63, 0x0d, 0x24,
-	0x9b, 0x74, 0x77, 0x23, 0x08, 0x7e, 0x78, 0xc9, 0xee, 0x56, 0x1a, 0xf0, 0xe2, 0x6d, 0xe7, 0xf7,
-	0xde, 0x64, 0xde, 0x0c, 0x01, 0xd0, 0xa4, 0xf4, 0xac, 0x92, 0xa5, 0x2e, 0xb1, 0x57, 0xf0, 0x4c,
-	0x24, 0x02, 0x86, 0x1b, 0xe2, 0x32, 0xfd, 0x60, 0x74, 0xac, 0x49, 0x69, 0x1c, 0x41, 0xff, 0x58,
-	0x93, 0xfc, 0x8a, 0xbc, 0xb1, 0x37, 0x0d, 0x98, 0x2d, 0xf0, 0x0e, 0x06, 0x15, 0x3f, 0xd0, 0x56,
-	0xd4, 0xc5, 0x8e, 0x64, 0xd4, 0x19, 0x7b, 0xd3, 0x3e, 0x83, 0x06, 0xbd, 0x1a, 0x82, 0x13, 0xb8,
-	0x92, 0xa4, 0xea, 0x5c, 0x6f, 0x2b, 0x92, 0xdb, 0x46, 0x88, 0xba, 0xc6, 0x34, 0xb4, 0x78, 0x4d,
-	0x72, 0xcd, 0x0f, 0x94, 0x2c, 0x21, 0x3c, 0xcd, 0x53, 0x55, 0x29, 0x14, 0xe1, 0x03, 0xf8, 0xd6,
-	0x12, 0x79, 0xe3, 0xee, 0x74, 0x30, 0xbf, 0x9c, 0x35, 0xc1, 0x66, 0xcc, 0x30, 0xe6, 0xb4, 0xe4,
-	0x05, 0x7c, 0x4b, 0xf0, 0x1a, 0xba, 0xb5, 0xcc, 0x5d, 0xbc, 0xe6, 0xd9, 0x44, 0xd6, 0x99, 0xce,
-	0xc9, 0xc4, 0x0a, 0x98, 0x2d, 0x30, 0x86, 0x0b, 0x25, 0xb2, 0xaa, 0x22, 0xad, 0x4c, 0x94, 0x80,
-	0xfd, 0xd6, 0xc9, 0x3d, 0x0c, 0x56, 0x69, 0x5a, 0xd6, 0x42, 0x3f, 0x8b, 0xf7, 0x12, 0x11, 0x7a,
-	0x82, 0x17, 0xe4, 0xbe, 0x69, 0xde, 0xc9, 0x04, 0x46, 0x4f, 0xa4, 0xcf, 0x5c, 0x6b, 0x2e, 0x79,
-	0xa1, 0x30, 0x84, 0x4e, 0xb6, 0x77, 0xce, 0x4e, 0xb6, 0x9f, 0x7f, 0x9f, 0x0e, 0xb8, 0x21, 0xf9,
-	0x99, 0xa5, 0x84, 0x0b, 0xf0, 0x2d, 0xc0, 0x5b, 0xbb, 0x49, 0xeb, 0xbe, 0xf1, 0xa8, 0x0d, 0xdd,
-	0x11, 0x96, 0x10, 0x58, 0xb2, 0xca, 0xf5, 0x3f, 0xfa, 0xe6, 0x6f, 0x10, 0xba, 0x88, 0xa7, 0xf1,
-	0x8f, 0x10, 0xb6, 0x73, 0x63, 0x6c, 0x3b, 0xff, 0xda, 0x26, 0xbe, 0xb1, 0xda, 0x99, 0xb0, 0xf3,
-	0xcd, 0xef, 0xb1, 0xf8, 0x09, 0x00, 0x00, 0xff, 0xff, 0x04, 0xdd, 0x15, 0x3f, 0x2c, 0x02, 0x00,
-	0x00,
+	// 390 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x9c, 0x93, 0x41, 0xeb, 0xda, 0x40,
+	0x10, 0xc5, 0x49, 0xac, 0x69, 0x33, 0xc1, 0xd8, 0x2e, 0xd2, 0xa6, 0x42, 0xa9, 0xcd, 0xc1, 0x7a,
+	0xf2, 0x60, 0x4f, 0x42, 0x2f, 0x52, 0xa5, 0x14, 0xa4, 0x48, 0xa4, 0x78, 0x0c, 0x31, 0x8e, 0x1a,
+	0x48, 0x36, 0xeb, 0xee, 0xa6, 0xd8, 0xef, 0xd2, 0x0f, 0x5b, 0x76, 0x37, 0x09, 0x4a, 0xff, 0x17,
+	0xff, 0xb7, 0x9d, 0xdf, 0xcc, 0xbc, 0x7d, 0x79, 0x4b, 0x00, 0x24, 0x0a, 0x39, 0x65, 0xbc, 0x94,
+	0x25, 0x79, 0x89, 0xd7, 0xa4, 0x60, 0x39, 0x86, 0x14, 0x7a, 0x5b, 0x4c, 0x78, 0x7a, 0x8e, 0xf0,
+	0x52, 0xa1, 0x90, 0x64, 0x00, 0xdd, 0x4b, 0x85, 0xfc, 0x4f, 0x60, 0x8d, 0xac, 0x89, 0x1b, 0x99,
+	0x82, 0x7c, 0x04, 0x8f, 0x25, 0x27, 0x8c, 0x69, 0x55, 0xec, 0x91, 0x07, 0xf6, 0xc8, 0x9a, 0x74,
+	0x23, 0x50, 0xe8, 0xa7, 0x26, 0x64, 0x0c, 0x7d, 0x8e, 0xa2, 0xca, 0x65, 0xcc, 0x90, 0xc7, 0xaa,
+	0x11, 0x74, 0xf4, 0x50, 0xcf, 0xe0, 0x0d, 0xf2, 0x4d, 0x72, 0xc2, 0x70, 0x0e, 0x7e, 0x73, 0x9f,
+	0x60, 0x25, 0x15, 0x48, 0x3e, 0x83, 0x63, 0x46, 0x02, 0x6b, 0xd4, 0x99, 0x78, 0xb3, 0xfe, 0xb4,
+	0xf6, 0x36, 0x8d, 0x34, 0x8e, 0xea, 0x76, 0xb8, 0x04, 0xcf, 0xac, 0xae, 0x38, 0x2f, 0xb9, 0x32,
+	0x7a, 0xcc, 0x30, 0x3f, 0x34, 0x46, 0x75, 0xa1, 0x8c, 0xa2, 0x6a, 0xc7, 0x69, 0x59, 0x51, 0xd9,
+	0x18, 0xd5, 0xe8, 0x9b, 0x22, 0xe1, 0x1a, 0x1c, 0xa3, 0x4b, 0x5e, 0x43, 0xa7, 0xe2, 0x79, 0xbd,
+	0xae, 0x8e, 0x4a, 0x52, 0x66, 0x32, 0x47, 0xbd, 0xe6, 0x46, 0xa6, 0x20, 0x43, 0x78, 0x25, 0x68,
+	0xc6, 0x18, 0x4a, 0xa1, 0xbf, 0xc9, 0x8d, 0xda, 0x3a, 0xfc, 0x04, 0xde, 0x22, 0xd5, 0x57, 0xfd,
+	0xa0, 0xc7, 0x92, 0x10, 0x78, 0x41, 0x93, 0x02, 0x6b, 0x4d, 0x7d, 0x0e, 0xc7, 0x30, 0xf8, 0x8e,
+	0xf2, 0x66, 0x6a, 0x93, 0xf0, 0xa4, 0x10, 0xc4, 0x07, 0x3b, 0x6b, 0xcc, 0xdb, 0xd9, 0x61, 0xf6,
+	0xd7, 0x6e, 0x9e, 0x62, 0x8b, 0xfc, 0x77, 0x96, 0x22, 0x99, 0x83, 0x63, 0x00, 0x79, 0xdb, 0x66,
+	0x72, 0xf7, 0x58, 0xc3, 0x77, 0xff, 0xf1, 0x3a, 0xd4, 0xaf, 0xe0, 0x1a, 0xb2, 0xc8, 0xe5, 0xe3,
+	0xdb, 0x4b, 0x78, 0xd3, 0x10, 0x59, 0x71, 0x6a, 0xf2, 0x7e, 0x58, 0x65, 0x0d, 0xef, 0x0d, 0xd9,
+	0x65, 0xf2, 0xfc, 0x8b, 0xe2, 0x95, 0x61, 0x2a, 0xf1, 0xf0, 0x3c, 0xb5, 0xd9, 0x0e, 0xfc, 0x3a,
+	0xc3, 0x26, 0x9e, 0x15, 0xf8, 0xf7, 0xc1, 0x92, 0x0f, 0xed, 0xf2, 0x53, 0x89, 0x0f, 0x07, 0x6d,
+	0xfb, 0xa6, 0xb7, 0x77, 0xf4, 0x1f, 0xf1, 0xe5, 0x5f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x7d, 0xe2,
+	0xab, 0xd8, 0x1f, 0x03, 0x00, 0x00,
 }

@@ -1,9 +1,9 @@
-import { main } from "./testproto";
+import { example } from "./testproto";
 import fetch from "node-fetch";
 
 const mapping = {
-  searchAlt: "/main.SearchService/SearchAlt",
-  search: "/main.SearchService/Search"
+  searchAlt: "/example.SearchService/SearchAlt",
+  search: "/example.SearchService/Search"
 };
 
 const impl = (mapping: any) => (
@@ -20,9 +20,9 @@ const impl = (mapping: any) => (
     .catch(err => callback(err, null));
 };
 
-const service = new main.SearchService(impl(mapping));
+const service = new example.SearchService(impl(mapping));
 
-const request = new main.SearchRequest({
+const request = new example.SearchRequest({
   query: "123",
   pageNumber: 1,
   resultPerPage: 10
