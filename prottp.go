@@ -121,6 +121,10 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			//interceptor grpc.UnaryServerInterceptor
 			interceptor)
 
+		if isJson {
+			w.Header().Add("Content-Type", "application/json")
+		}
+
 		if err != nil {
 			handled := false
 			if statusErr, ok := err.(HTTPStatusError); ok {
@@ -146,7 +150,6 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 func writeMessage(isJson bool, msg proto.Message, w http.ResponseWriter) {
 	var err error
 	if isJson {
-		w.Header().Add("Content-Type", "application/json")
 		err = marshaler.Marshal(w, msg)
 		if err != nil {
 			panic(err)

@@ -18,13 +18,14 @@ import (
 )
 
 var cases = []struct {
-	Name                string
-	URL                 string
-	JSONReqBody         string
-	ExpectedJSONResBody string
-	PBReqBody           proto.Message
-	ExpectedPBResBody   proto.Message
-	ExpectedStatusCode  int
+	Name                        string
+	URL                         string
+	JSONReqBody                 string
+	ExpectedJSONResBody         string
+	PBReqBody                   proto.Message
+	ExpectedPBResBody           proto.Message
+	ExpectedStatusCode          int
+	ExpectedExpectedContentType string
 }{
 	{
 		Name: "test json 1",
@@ -42,6 +43,7 @@ var cases = []struct {
 		}
 	]
 }`,
+		ExpectedExpectedContentType: "application/json",
 	},
 
 	{
@@ -132,6 +134,11 @@ func TestPassThrough(t *testing.T) {
 		if c.ExpectedStatusCode != 0 {
 			if c.ExpectedStatusCode != res.StatusCode {
 				t.Errorf("expected status code %d, but was %d", c.ExpectedStatusCode, res.StatusCode)
+			}
+		}
+		if len(c.ExpectedExpectedContentType) > 0 {
+			if c.ExpectedExpectedContentType != res.Header.Get("Content-Type") {
+				t.Errorf("expected content type %s, but was %s", c.ExpectedExpectedContentType, res.Header.Get("Content-Type"))
 			}
 		}
 
