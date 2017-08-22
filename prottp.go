@@ -32,9 +32,8 @@ type ErrorWithStatus interface {
 }
 
 type respError struct {
-	statusCode   int
-	errorMessage string
-	body         proto.Message
+	statusCode int
+	body       proto.Message
 }
 
 func (re *respError) Message() proto.Message {
@@ -49,11 +48,11 @@ func (re *respError) HTTPStatusCode() int {
 }
 
 func (re *respError) Error() string {
-	return re.errorMessage
+	return "prottp error"
 }
 
-func NewError(statusCode int, errorMessage string, body proto.Message) ErrorWithStatus {
-	return &respError{statusCode: statusCode, errorMessage: errorMessage, body: body}
+func NewError(statusCode int, body proto.Message) ErrorWithStatus {
+	return &respError{statusCode: statusCode, body: body}
 }
 
 func Handle(mux *http.ServeMux, service Service, mws ...server.Middleware) {
@@ -93,16 +92,24 @@ var unmarshaler = jsonpb.Unmarshaler{
 func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		isJson := strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
-		dec := func(i interface{}) error {
+		dec := func(i interface{}) (err error) {
+			defer func() {
+				if err != nil {
+					err = NewError(http.StatusUnprocessableEntity, nil)
+				}
+			}()
 			if isJson {
-				return unmarshaler.Unmarshal(r.Body, i.(proto.Message))
+				err = unmarshaler.Unmarshal(r.Body, i.(proto.Message))
+				return
 			}
 
-			buff, err := ioutil.ReadAll(r.Body)
+			var buff []byte
+			buff, err = ioutil.ReadAll(r.Body)
 			if err != nil {
-				return err
+				return
 			}
-			return proto.Unmarshal(buff, i.(proto.Message))
+			err = proto.Unmarshal(buff, i.(proto.Message))
+			return
 		}
 
 		var interceptor grpc.UnaryServerInterceptor
@@ -149,6 +156,10 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 
 func writeMessage(isJson bool, msg proto.Message, w http.ResponseWriter) {
 	var err error
+	if msg == nil {
+		return
+	}
+
 	if isJson {
 		err = marshaler.Marshal(w, msg)
 		if err != nil {

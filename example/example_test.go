@@ -78,6 +78,17 @@ var cases = []struct {
 }`,
 	},
 	{
+		Name: "test json error invalid",
+		URL:  "/example.SearchService/SearchReturnError",
+		JSONReqBody: `{
+			"query": "query string",
+			"page_number": 1,
+			"result_per_page": 10]
+		}`,
+		ExpectedStatusCode:  422,
+		ExpectedJSONResBody: ``,
+	},
+	{
 		Name: "test protobuf error 1",
 		URL:  "/example.SearchService/SearchReturnError",
 		PBReqBody: &example.SearchRequest{
