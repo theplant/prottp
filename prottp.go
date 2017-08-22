@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -95,7 +96,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 		dec := func(i interface{}) (err error) {
 			defer func() {
 				if err != nil {
-					err = NewError(http.StatusUnprocessableEntity, nil)
+					err = NewError(http.StatusBadRequest, nil)
 				}
 			}()
 			if isJson {
@@ -148,7 +149,6 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			}
 			return
 		}
-
 		w.WriteHeader(http.StatusOK)
 		writeMessage(isJson, resp.(proto.Message), w)
 	})
@@ -156,7 +156,8 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 
 func writeMessage(isJson bool, msg proto.Message, w http.ResponseWriter) {
 	var err error
-	if msg == nil {
+
+	if msg == nil || reflect.ValueOf(msg).IsNil() {
 		return
 	}
 

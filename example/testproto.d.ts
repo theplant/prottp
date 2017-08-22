@@ -462,6 +462,20 @@ export namespace example {
         public searchReturnError(request: example.ISearchRequest): Promise<example.SearchResponse>;
 
         /**
+         * Calls SearchReturnNil.
+         * @param request SearchRequest message or plain object
+         * @param callback Node-style callback called with the error, if any, and SearchResponse
+         */
+        public searchReturnNil(request: example.ISearchRequest, callback: example.SearchService.SearchReturnNilCallback): void;
+
+        /**
+         * Calls SearchReturnNil.
+         * @param request SearchRequest message or plain object
+         * @returns Promise
+         */
+        public searchReturnNil(request: example.ISearchRequest): Promise<example.SearchResponse>;
+
+        /**
          * Calls SearchWithUnexpectedError.
          * @param request SearchRequest message or plain object
          * @param callback Node-style callback called with the error, if any, and SearchResponse
@@ -498,6 +512,13 @@ export namespace example {
          * @param [response] SearchResponse
          */
         type SearchReturnErrorCallback = (error: (Error|null), response?: example.SearchResponse) => void;
+
+        /**
+         * Callback as used by {@link example.SearchService#searchReturnNil}.
+         * @param error Error, if any
+         * @param [response] SearchResponse
+         */
+        type SearchReturnNilCallback = (error: (Error|null), response?: example.SearchResponse) => void;
 
         /**
          * Callback as used by {@link example.SearchService#searchWithUnexpectedError}.

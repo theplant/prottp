@@ -85,9 +85,21 @@ var cases = []struct {
 			"page_number": 1,
 			"result_per_page": 10]
 		}`,
-		ExpectedStatusCode:  422,
+		ExpectedStatusCode:  400,
 		ExpectedJSONResBody: ``,
 	},
+	{
+		Name: "test response nil",
+		URL:  "/example.SearchService/SearchReturnNil",
+		JSONReqBody: `{
+			"query": "query string",
+			"page_number": 1,
+			"result_per_page": 10
+		}`,
+		ExpectedStatusCode:  200,
+		ExpectedJSONResBody: ``,
+	},
+
 	{
 		Name: "test protobuf error 1",
 		URL:  "/example.SearchService/SearchReturnError",

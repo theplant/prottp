@@ -37,6 +37,11 @@ func (s search) SearchReturnError(ctx context.Context, r *SearchRequest) (*Searc
 	return nil, prottp.NewError(500, &SearchError{Field: "field123", ErrorCount: 100})
 }
 
+func (s search) SearchReturnNil(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
+	fmt.Println("SearchReturnNil", r)
+	return nil, nil
+}
+
 func (s search) SearchWithUnexpectedError(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
 	fmt.Println("SearchWithUnexpectedError", r)
 	return nil, io.EOF
