@@ -96,7 +96,7 @@ var cases = []struct {
 			"page_number": 1,
 			"result_per_page": 10
 		}`,
-		ExpectedStatusCode:  200,
+		ExpectedStatusCode:  204,
 		ExpectedJSONResBody: ``,
 	},
 

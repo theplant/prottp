@@ -140,7 +140,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 				handled = true
 			}
 			if msgErr, ok := err.(ErrorResponse); ok {
-				writeMessage(isJson, msgErr.Message(), w)
+				writeMessage(isJson, msgErr.Message(), 0, w)
 				handled = true
 			}
 
@@ -149,18 +149,23 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			}
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		writeMessage(isJson, resp.(proto.Message), w)
+		writeMessage(isJson, resp.(proto.Message), http.StatusOK, w)
 	})
 }
 
-func writeMessage(isJson bool, msg proto.Message, w http.ResponseWriter) {
+func writeMessage(isJson bool, msg proto.Message, statusCode int, w http.ResponseWriter) {
 	var err error
 
 	if msg == nil || reflect.ValueOf(msg).IsNil() {
+		if statusCode == http.StatusOK {
+			w.WriteHeader(http.StatusNoContent)
+		}
 		return
 	}
 
+	if statusCode > 0 {
+		w.WriteHeader(statusCode)
+	}
 	if isJson {
 		err = marshaler.Marshal(w, msg)
 		if err != nil {
