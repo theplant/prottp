@@ -28,6 +28,7 @@ service SearchService {
   rpc Search (SearchRequest) returns (SearchResponse);
   rpc SearchAlt (SearchRequest) returns (SearchResponse);
   rpc SearchReturnError (SearchRequest) returns (SearchResponse);
+  rpc SearchReturnNil (SearchRequest) returns (SearchResponse);
   rpc SearchWithUnexpectedError (SearchRequest) returns (SearchResponse);
 }
 

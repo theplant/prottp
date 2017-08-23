@@ -1048,6 +1048,39 @@ export const example = $root.example = (() => {
          */
 
         /**
+         * Callback as used by {@link example.SearchService#searchReturnNil}.
+         * @memberof example.SearchService
+         * @typedef SearchReturnNilCallback
+         * @type {function}
+         * @param {Error|null} error Error, if any
+         * @param {example.SearchResponse} [response] SearchResponse
+         */
+
+        /**
+         * Calls SearchReturnNil.
+         * @function .searchReturnNil
+         * @memberof example.SearchService
+         * @instance
+         * @param {example.ISearchRequest} request SearchRequest message or plain object
+         * @param {example.SearchService.SearchReturnNilCallback} callback Node-style callback called with the error, if any, and SearchResponse
+         * @returns {undefined}
+         * @variation 1
+         */
+        SearchService.prototype.searchReturnNil = function searchReturnNil(request, callback) {
+            return this.rpcCall(searchReturnNil, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+        };
+
+        /**
+         * Calls SearchReturnNil.
+         * @function searchReturnNil
+         * @memberof example.SearchService
+         * @instance
+         * @param {example.ISearchRequest} request SearchRequest message or plain object
+         * @returns {Promise<example.SearchResponse>} Promise
+         * @variation 2
+         */
+
+        /**
          * Callback as used by {@link example.SearchService#searchWithUnexpectedError}.
          * @memberof example.SearchService
          * @typedef SearchWithUnexpectedErrorCallback

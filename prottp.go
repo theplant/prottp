@@ -1,14 +1,17 @@
 package prottp
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/ptypes/empty"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/theplant/appkit/kerrs"
 	"github.com/theplant/appkit/server"
 	"google.golang.org/grpc"
 )
@@ -95,7 +98,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 		dec := func(i interface{}) (err error) {
 			defer func() {
 				if err != nil {
-					err = NewError(http.StatusUnprocessableEntity, nil)
+					err = NewError(http.StatusBadRequest, &empty.Empty{})
 				}
 			}()
 			if isJson {
@@ -139,7 +142,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 				handled = true
 			}
 			if msgErr, ok := err.(ErrorResponse); ok {
-				writeMessage(isJson, msgErr.Message(), w)
+				writeMessage(isJson, msgErr.Message(), 0, w)
 				handled = true
 			}
 
@@ -148,28 +151,38 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			}
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
-		writeMessage(isJson, resp.(proto.Message), w)
+		writeMessage(isJson, resp.(proto.Message), http.StatusOK, w)
 	})
 }
 
-func writeMessage(isJson bool, msg proto.Message, w http.ResponseWriter) {
+func writeMessage(isJson bool, msg proto.Message, statusCode int, w http.ResponseWriter) {
 	var err error
-	if msg == nil {
-		return
-	}
+
+	// if msg == nil || reflect.ValueOf(msg).IsNil() {
+	// 	if statusCode == http.StatusOK {
+	// 		w.WriteHeader(http.StatusNoContent)
+	// 	}
+	// 	return
+	// }
 
 	if isJson {
-		err = marshaler.Marshal(w, msg)
+		buf := bytes.NewBuffer(nil)
+		err = marshaler.Marshal(buf, msg)
 		if err != nil {
-			panic(err)
+			panic(kerrs.Wrapv(err, "marshal message to json error", "response", msg))
 		}
+		if statusCode > 0 {
+			w.WriteHeader(statusCode)
+		}
+		w.Write(buf.Bytes())
 	} else {
 		var b []byte
 		b, err = proto.Marshal(msg)
 		if err != nil {
-			panic(err)
+			panic(kerrs.Wrapv(err, "marshal message to proto error", "response", msg))
+		}
+		if statusCode > 0 {
+			w.WriteHeader(statusCode)
 		}
 		w.Write(b)
 	}
