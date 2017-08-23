@@ -2,6 +2,7 @@ package example_test
 
 import (
 	"bytes"
+	fmt "fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -28,7 +29,7 @@ var cases = []struct {
 	ExpectedExpectedContentType string
 }{
 	{
-		Name: "test json 1",
+		Name: "test json normal",
 		URL:  "/example.SearchService/Search",
 		JSONReqBody: `{
 			"query": "query string",
@@ -48,7 +49,7 @@ var cases = []struct {
 	},
 
 	{
-		Name: "test protobuf 1",
+		Name: "test protobuf normal",
 		URL:  "/example.SearchService/Search",
 		PBReqBody: &example.SearchRequest{
 			Query:         "query string protobuf",
@@ -63,7 +64,7 @@ var cases = []struct {
 	},
 
 	{
-		Name: "test json error 1",
+		Name: "test json error in response body",
 		URL:  "/example.SearchService/SearchReturnError",
 		JSONReqBody: `{
 			"query": "query string",
@@ -78,7 +79,7 @@ var cases = []struct {
 }`,
 	},
 	{
-		Name: "test json error invalid",
+		Name: "test json broken request body should not panic",
 		URL:  "/example.SearchService/SearchReturnError",
 		JSONReqBody: `{
 			"query": "query string",
@@ -86,10 +87,10 @@ var cases = []struct {
 			"result_per_page": 10]
 		}`,
 		ExpectedStatusCode:  400,
-		ExpectedJSONResBody: ``,
+		ExpectedJSONResBody: `{}`,
 	},
 	{
-		Name: "test response nil",
+		Name: "test response nil should panic",
 		URL:  "/example.SearchService/SearchReturnNil",
 		JSONReqBody: `{
 			"query": "query string",
@@ -101,7 +102,7 @@ var cases = []struct {
 	},
 
 	{
-		Name: "test protobuf error 1",
+		Name: "test protobuf error in response body",
 		URL:  "/example.SearchService/SearchReturnError",
 		PBReqBody: &example.SearchRequest{
 			Query:         "query string protobuf",
@@ -116,7 +117,7 @@ var cases = []struct {
 	},
 
 	{
-		Name: "test unexpected error",
+		Name: "test unexpected error should panic",
 		URL:  "/example.SearchService/SearchWithUnexpectedError",
 		JSONReqBody: `{
 			"query": "query string",
@@ -133,6 +134,7 @@ func TestPassThrough(t *testing.T) {
 	defer ts.Close()
 
 	for _, c := range cases {
+		fmt.Println("\n\n\n===", c.Name)
 		var req io.Reader
 		var contentType = "application/json"
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/ptypes/empty"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/theplant/appkit/kerrs"
@@ -97,7 +98,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 		dec := func(i interface{}) (err error) {
 			defer func() {
 				if err != nil {
-					err = NewError(http.StatusBadRequest, nil)
+					err = NewError(http.StatusBadRequest, &empty.Empty{})
 				}
 			}()
 			if isJson {
