@@ -168,7 +168,7 @@ func writeMessage(isJson bool, msg proto.Message, statusCode int, w http.Respons
 		buf := bytes.NewBuffer(nil)
 		err = marshaler.Marshal(buf, msg)
 		if err != nil {
-			panic(kerrs.Wrapv(err, "Marshal message to json error", "response", msg))
+			panic(kerrs.Wrapv(err, "marshal message to json error", "response", msg))
 		}
 		if statusCode > 0 {
 			w.WriteHeader(statusCode)
@@ -178,7 +178,7 @@ func writeMessage(isJson bool, msg proto.Message, statusCode int, w http.Respons
 		var b []byte
 		b, err = proto.Marshal(msg)
 		if err != nil {
-			panic(kerrs.Wrapv(err, "Marshal message to proto error", "response", msg))
+			panic(kerrs.Wrapv(err, "marshal message to proto error", "response", msg))
 		}
 		if statusCode > 0 {
 			w.WriteHeader(statusCode)
