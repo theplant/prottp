@@ -1,15 +1,16 @@
 package prottp
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/theplant/appkit/kerrs"
 	"github.com/theplant/appkit/server"
 	"google.golang.org/grpc"
 )
@@ -156,26 +157,31 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 func writeMessage(isJson bool, msg proto.Message, statusCode int, w http.ResponseWriter) {
 	var err error
 
-	if msg == nil || reflect.ValueOf(msg).IsNil() {
-		if statusCode == http.StatusOK {
-			w.WriteHeader(http.StatusNoContent)
-		}
-		return
-	}
+	// if msg == nil || reflect.ValueOf(msg).IsNil() {
+	// 	if statusCode == http.StatusOK {
+	// 		w.WriteHeader(http.StatusNoContent)
+	// 	}
+	// 	return
+	// }
 
-	if statusCode > 0 {
-		w.WriteHeader(statusCode)
-	}
 	if isJson {
-		err = marshaler.Marshal(w, msg)
+		buf := bytes.NewBuffer(nil)
+		err = marshaler.Marshal(buf, msg)
 		if err != nil {
-			panic(err)
+			panic(kerrs.Wrapv(err, "Marshal message to json error", "response", msg))
 		}
+		if statusCode > 0 {
+			w.WriteHeader(statusCode)
+		}
+		w.Write(buf.Bytes())
 	} else {
 		var b []byte
 		b, err = proto.Marshal(msg)
 		if err != nil {
-			panic(err)
+			panic(kerrs.Wrapv(err, "Marshal message to proto error", "response", msg))
+		}
+		if statusCode > 0 {
+			w.WriteHeader(statusCode)
 		}
 		w.Write(b)
 	}
