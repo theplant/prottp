@@ -92,16 +92,20 @@ var unmarshaler = jsonpb.Unmarshaler{
 	AllowUnknownFields: false,
 }
 
+func isRequestJSON(r *http.Request) bool {
+	return strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
+}
+
 func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isJson := strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
+		isJSON := isRequestJSON(r)
 		dec := func(i interface{}) (err error) {
 			defer func() {
 				if err != nil {
 					err = NewError(http.StatusBadRequest, &empty.Empty{})
 				}
 			}()
-			if isJson {
+			if isJSON {
 				err = unmarshaler.Unmarshal(r.Body, i.(proto.Message))
 				return
 			}
@@ -131,18 +135,15 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			//interceptor grpc.UnaryServerInterceptor
 			interceptor)
 
-		if isJson {
-			w.Header().Add("Content-Type", "application/json")
-		}
-
+		statusCode := 0
 		if err != nil {
 			handled := false
 			if statusErr, ok := err.(HTTPStatusError); ok {
-				w.WriteHeader(statusErr.HTTPStatusCode())
 				handled = true
+				statusCode = statusErr.HTTPStatusCode()
 			}
 			if msgErr, ok := err.(ErrorResponse); ok {
-				writeMessage(isJson, msgErr.Message(), 0, w)
+				WriteMessage(statusCode, msgErr.Message(), w, r)
 				handled = true
 			}
 
@@ -151,28 +152,28 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			}
 			return
 		}
-		writeMessage(isJson, resp.(proto.Message), http.StatusOK, w)
+		WriteMessage(statusCode, resp.(proto.Message), w, r)
 	})
 }
 
-func writeMessage(isJson bool, msg proto.Message, statusCode int, w http.ResponseWriter) {
+// WriteMessage is exported to be used for middleware to return proto message
+func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *http.Request) {
 	var err error
+	isJSON := isRequestJSON(r)
+	if isJSON {
+		w.Header().Add("Content-Type", "application/json")
+	}
 
-	// if msg == nil || reflect.ValueOf(msg).IsNil() {
-	// 	if statusCode == http.StatusOK {
-	// 		w.WriteHeader(http.StatusNoContent)
-	// 	}
-	// 	return
-	// }
+	if statusCode > 0 {
+		w.WriteHeader(statusCode)
+	}
 
-	if isJson {
+	// start write body
+	if isJSON {
 		buf := bytes.NewBuffer(nil)
 		err = marshaler.Marshal(buf, msg)
 		if err != nil {
 			panic(kerrs.Wrapv(err, "marshal message to json error", "response", msg))
-		}
-		if statusCode > 0 {
-			w.WriteHeader(statusCode)
 		}
 		w.Write(buf.Bytes())
 	} else {
@@ -180,9 +181,6 @@ func writeMessage(isJson bool, msg proto.Message, statusCode int, w http.Respons
 		b, err = proto.Marshal(msg)
 		if err != nil {
 			panic(kerrs.Wrapv(err, "marshal message to proto error", "response", msg))
-		}
-		if statusCode > 0 {
-			w.WriteHeader(statusCode)
 		}
 		w.Write(b)
 	}
