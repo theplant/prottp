@@ -68,6 +68,7 @@ func mustLogin(in http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if true {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
 		}
 		r = r.WithContext(context.WithValue(r.Context(), "AccountID", 1))
 		in.ServeHTTP(w, r)

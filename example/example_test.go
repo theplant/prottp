@@ -127,11 +127,27 @@ var cases = []struct {
 		ExpectedStatusCode:  500,
 		ExpectedJSONResBody: ``,
 	},
+
+	{
+		Name: "test service wrapped with middleware",
+		URL:  "/example.AccountService/GetAccountInfo",
+		JSONReqBody: `{
+			"id": "user id"
+		}`,
+		ExpectedStatusCode:  307,
+		ExpectedJSONResBody: ``,
+	},
 }
 
 func TestPassThrough(t *testing.T) {
 	ts := tserver()
 	defer ts.Close()
+
+	client := http.Client{
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 
 	for _, c := range cases {
 		fmt.Println("\n\n\n===", c.Name)
@@ -149,7 +165,7 @@ func TestPassThrough(t *testing.T) {
 			req = bytes.NewBuffer(b)
 		}
 
-		res, err := http.Post(ts.URL+c.URL, contentType, req)
+		res, err := client.Post(ts.URL+c.URL, contentType, req)
 		if err != nil {
 			panic(err)
 		}
