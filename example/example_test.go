@@ -36,8 +36,7 @@ var cases = []struct {
 			"page_number": 1,
 			"result_per_page": 10
 		}`,
-		ExpectedJSONResBody: `
-{
+		ExpectedJSONResBody: `{
 	"result": [
 		{
 			"url": "query string",
@@ -72,8 +71,7 @@ var cases = []struct {
 			"result_per_page": 10
 		}`,
 		ExpectedStatusCode: 500,
-		ExpectedJSONResBody: `
-{
+		ExpectedJSONResBody: `{
 	"field": "field123",
 	"error_count": 100
 }`,
@@ -86,8 +84,10 @@ var cases = []struct {
 			"page_number": 1,
 			"result_per_page": 10]
 		}`,
-		ExpectedStatusCode:  400,
-		ExpectedJSONResBody: `{}`,
+		ExpectedStatusCode: 400,
+		ExpectedJSONResBody: `{
+
+}`,
 	},
 	{
 		Name: "test response nil should panic",
