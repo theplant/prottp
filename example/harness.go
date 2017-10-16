@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/theplant/appkit/server"
 	"github.com/theplant/prottp"
 )
 
@@ -67,7 +68,7 @@ func (s account) Description() grpc.ServiceDesc {
 type auth struct{}
 
 func (s auth) Login(ctx context.Context, r *LoginParams) (*LoginResult, error) {
-	h := prottp.ForceHeader(ctx)
+	h := server.ForceHeader(ctx)
 	fmt.Println("setting cookie")
 	h.Set("Set-Cookie", "cookie")
 	return &LoginResult{}, nil
@@ -94,6 +95,6 @@ func Mount(mux *http.ServeMux) {
 	au := auth{}
 
 	prottp.Handle(mux, a, mustLogin)
-	prottp.Handle(mux, au, prottp.WithHeader)
+	prottp.Handle(mux, au, server.WithHeader)
 	prottp.Handle(mux, s)
 }
