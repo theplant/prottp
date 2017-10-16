@@ -40,7 +40,19 @@ message GetAccountInfoParams {
   string id = 1;
 }
 
+message LoginParams {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResult {
+  string status = 1;
+}
 
 service AccountService {
   rpc GetAccountInfo (GetAccountInfoParams) returns (AccountInfo);
+}
+
+service AuthService {
+  rpc Login (LoginParams) returns (LoginResult);
 }

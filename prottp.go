@@ -160,7 +160,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *http.Request) {
 	var err error
 	isJSON := isRequestJSON(r)
-	if isJSON {
+	if isJSON && w.Header().Get("Content-Type") == "" {
 		w.Header().Add("Content-Type", "application/json")
 	}
 
