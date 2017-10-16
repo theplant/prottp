@@ -64,10 +64,24 @@ func (s account) Description() grpc.ServiceDesc {
 	return _AccountService_serviceDesc
 }
 
+type auth struct{}
+
+func (s auth) Login(ctx context.Context, r *LoginParams) (*LoginResult, error) {
+	h := prottp.ForceHeader(ctx)
+	fmt.Println("setting cookie")
+	h.Set("Set-Cookie", "cookie")
+	return &LoginResult{}, nil
+}
+
+func (s auth) Description() grpc.ServiceDesc {
+	return _AuthService_serviceDesc
+}
+
 func mustLogin(in http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if true {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			w.WriteHeader(http.StatusForbidden)
+			return
 		}
 		r = r.WithContext(context.WithValue(r.Context(), "AccountID", 1))
 		in.ServeHTTP(w, r)
@@ -77,7 +91,9 @@ func mustLogin(in http.Handler) http.Handler {
 func Mount(mux *http.ServeMux) {
 	a := account{}
 	s := search{}
+	au := auth{}
 
 	prottp.Handle(mux, a, mustLogin)
+	prottp.Handle(mux, au, prottp.WithHeader)
 	prottp.Handle(mux, s)
 }

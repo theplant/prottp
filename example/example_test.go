@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/http/httputil"
 	"reflect"
+	"strings"
 	"testing"
 
 	proto "github.com/golang/protobuf/proto"
@@ -19,14 +21,14 @@ import (
 )
 
 var cases = []struct {
-	Name                        string
-	URL                         string
-	JSONReqBody                 string
-	ExpectedJSONResBody         string
-	PBReqBody                   proto.Message
-	ExpectedPBResBody           proto.Message
-	ExpectedStatusCode          int
-	ExpectedExpectedContentType string
+	Name                string
+	URL                 string
+	JSONReqBody         string
+	ExpectedJSONResBody string
+	PBReqBody           proto.Message
+	ExpectedPBResBody   proto.Message
+	ExpectedStatusCode  int
+	ExpectedHeadersDump string
 }{
 	{
 		Name: "test json normal",
@@ -45,7 +47,11 @@ var cases = []struct {
 		}
 	]
 }`,
-		ExpectedExpectedContentType: "application/json",
+		ExpectedHeadersDump: `HTTP/1.1 200 OK
+Content-Length: 78
+Content-Type: application/json
+
+`,
 	},
 
 	{
@@ -127,6 +133,31 @@ var cases = []struct {
 		ExpectedStatusCode:  500,
 		ExpectedJSONResBody: ``,
 	},
+	{
+		Name: "test service wrapped with middleware",
+		URL:  "/example.AccountService/GetAccountInfo",
+		JSONReqBody: `{
+			"id": "user id"
+		}`,
+		ExpectedStatusCode:  403,
+		ExpectedJSONResBody: ``,
+	},
+	{
+		Name: "test service that change headers",
+		URL:  "/example.AuthService/Login",
+		JSONReqBody: `{
+			"username": "felix",
+			"password": "p"
+		}`,
+		ExpectedJSONResBody: `{}`,
+		ExpectedStatusCode:  200,
+		ExpectedHeadersDump: `HTTP/1.1 200 OK
+Content-Length: 4
+Content-Type: application/json
+Set-Cookie: cookie
+
+`,
+	},
 }
 
 func TestPassThrough(t *testing.T) {
@@ -162,9 +193,10 @@ func TestPassThrough(t *testing.T) {
 				t.Errorf("expected status code %d, but was %d", c.ExpectedStatusCode, res.StatusCode)
 			}
 		}
-		if len(c.ExpectedExpectedContentType) > 0 {
-			if c.ExpectedExpectedContentType != res.Header.Get("Content-Type") {
-				t.Errorf("expected content type %s, but was %s", c.ExpectedExpectedContentType, res.Header.Get("Content-Type"))
+		if len(c.ExpectedHeadersDump) > 0 {
+			hdiff := testingutils.PrettyJsonDiff(c.ExpectedHeadersDump, dumpCleanResponseHeaders(res))
+			if len(hdiff) > 0 {
+				t.Error(hdiff)
 			}
 		}
 
@@ -187,6 +219,17 @@ func TestPassThrough(t *testing.T) {
 			t.Error(c.Name, diff)
 		}
 	}
+}
+
+func dumpCleanResponseHeaders(res *http.Response) (r string) {
+	res.Header.Del("Date")
+	dump, err := httputil.DumpResponse(res, false)
+	// fmt.Printf("%#+v", string(dump))
+	if err != nil {
+		panic(err)
+	}
+	r = strings.Replace(string(dump), "\r", "", -1)
+	return
 }
 
 func tserver() *httptest.Server {

@@ -2,6 +2,7 @@ package prottp
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -56,6 +57,26 @@ func (re *respError) Error() string {
 
 func NewError(statusCode int, body proto.Message) ErrorWithStatus {
 	return &respError{statusCode: statusCode, body: body}
+}
+
+type key int
+
+const headerKey key = iota
+
+func WithHeader(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		newCtx := context.WithValue(ctx, headerKey, http.Header{})
+		h.ServeHTTP(w, r.WithContext(newCtx))
+	})
+}
+
+func ForceHeader(ctx context.Context) (h http.Header) {
+	h = ctx.Value(headerKey).(http.Header)
+	if h == nil {
+		panic("no header in context, please setup prottp.WithHeader middleware")
+	}
+	return
 }
 
 func Handle(mux *http.ServeMux, service Service, mws ...server.Middleware) {
@@ -158,9 +179,17 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 
 // WriteMessage is exported to be used for middleware to return proto message
 func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *http.Request) {
+	h, ok := r.Context().Value(headerKey).(http.Header)
+	if ok && len(h) > 0 {
+		for k, v := range h {
+			if len(v) > 0 {
+				w.Header().Add(k, v[0])
+			}
+		}
+	}
 	var err error
 	isJSON := isRequestJSON(r)
-	if isJSON {
+	if isJSON && w.Header().Get("Content-Type") == "" {
 		w.Header().Add("Content-Type", "application/json")
 	}
 
