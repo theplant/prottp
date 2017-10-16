@@ -183,7 +183,7 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 	if ok && len(h) > 0 {
 		for k, v := range h {
 			if len(v) > 0 {
-				w.Header().Add(k, v[0])
+				w.Header().Set(k, v[0])
 			}
 		}
 	}
