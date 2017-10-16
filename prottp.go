@@ -66,7 +66,7 @@ const headerKey key = iota
 func WithHeader(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		newCtx := context.WithValue(ctx, headerKey, http.Header{})
+		newCtx := context.WithValue(ctx, headerKey, w.Header())
 		h.ServeHTTP(w, r.WithContext(newCtx))
 	})
 }
@@ -179,14 +179,6 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 
 // WriteMessage is exported to be used for middleware to return proto message
 func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *http.Request) {
-	h, ok := r.Context().Value(headerKey).(http.Header)
-	if ok && len(h) > 0 {
-		for k, v := range h {
-			if len(v) > 0 {
-				w.Header().Set(k, v[0])
-			}
-		}
-	}
 	var err error
 	isJSON := isRequestJSON(r)
 	if isJSON && w.Header().Get("Content-Type") == "" {
