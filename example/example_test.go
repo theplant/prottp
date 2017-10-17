@@ -20,6 +20,10 @@ import (
 	"github.com/theplant/prottp/example"
 )
 
+var emptyJson = `{
+
+}`
+
 var cases = []struct {
 	Name                string
 	URL                 string
@@ -38,8 +42,7 @@ var cases = []struct {
 			"page_number": 1,
 			"result_per_page": 10
 		}`,
-		ExpectedJSONResBody: `
-{
+		ExpectedJSONResBody: `{
 	"result": [
 		{
 			"url": "query string",
@@ -78,8 +81,7 @@ Content-Type: application/json
 			"result_per_page": 10
 		}`,
 		ExpectedStatusCode: 500,
-		ExpectedJSONResBody: `
-{
+		ExpectedJSONResBody: `{
 	"field": "field123",
 	"error_count": 100
 }`,
@@ -93,7 +95,7 @@ Content-Type: application/json
 			"result_per_page": 10]
 		}`,
 		ExpectedStatusCode:  400,
-		ExpectedJSONResBody: `{}`,
+		ExpectedJSONResBody: emptyJson,
 	},
 	{
 		Name: "test response nil should panic",
@@ -149,7 +151,7 @@ Content-Type: application/json
 			"username": "felix",
 			"password": "p"
 		}`,
-		ExpectedJSONResBody: `{}`,
+		ExpectedJSONResBody: emptyJson,
 		ExpectedStatusCode:  200,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 4
@@ -163,6 +165,12 @@ Set-Cookie: cookie
 func TestPassThrough(t *testing.T) {
 	ts := tserver()
 	defer ts.Close()
+
+	client := http.Client{
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 
 	for _, c := range cases {
 		fmt.Println("\n\n\n===", c.Name)
@@ -180,7 +188,7 @@ func TestPassThrough(t *testing.T) {
 			req = bytes.NewBuffer(b)
 		}
 
-		res, err := http.Post(ts.URL+c.URL, contentType, req)
+		res, err := client.Post(ts.URL+c.URL, contentType, req)
 		if err != nil {
 			panic(err)
 		}
