@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/empty"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"github.com/theplant/appkit/kerrs"
 	"github.com/theplant/appkit/server"
 	"google.golang.org/grpc"
@@ -197,9 +196,9 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 	if w.Header().Get("Content-Type") == "" {
 		isJSON = shouldReturnJSON(r)
 		if isJSON {
-			w.Header().Set("Content-Type", fmt.Sprintf("%s;<%s>", jsonContentType, reflect.TypeOf(msg)))
+			w.Header().Set("Content-Type", fmt.Sprintf("%s;type=%s", jsonContentType, proto.MessageName(msg)))
 		} else {
-			w.Header().Set("Content-Type", fmt.Sprintf("%s;<%s>", xprottpContentType, reflect.TypeOf(msg)))
+			w.Header().Set("Content-Type", fmt.Sprintf("%s;type=%s", xprottpContentType, proto.MessageName(msg)))
 		}
 	}
 
