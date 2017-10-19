@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -92,13 +93,46 @@ var unmarshaler = jsonpb.Unmarshaler{
 	AllowUnknownFields: false,
 }
 
-func isRequestJSON(r *http.Request) bool {
-	return strings.Index(r.Header.Get("Content-Type"), "application/json") >= 0
+const jsonContentType = "application/json"
+const xprottpContentType = "application/x.prottp"
+
+func isMimeTypeJSON(contentType string) bool {
+	return strings.Index(strings.ToLower(contentType), jsonContentType) >= 0
+}
+
+func isContentTypeJSON(r *http.Request) bool {
+	return isMimeTypeJSON(r.Header.Get("Content-Type"))
+}
+
+func shouldReturnJSON(r *http.Request) bool {
+	acceptString := strings.ToLower(r.Header.Get("Accept"))
+	if len(acceptString) == 0 {
+		return isContentTypeJSON(r)
+	}
+	jsonIndex := strings.Index(acceptString, jsonContentType)
+	xprottpIndex := strings.Index(acceptString, xprottpContentType)
+
+	if jsonIndex < 0 && xprottpIndex < 0 {
+		return isContentTypeJSON(r)
+	}
+
+	if jsonIndex < 0 {
+		jsonIndex = 9999
+	}
+	if xprottpIndex < 0 {
+		xprottpIndex = 10000
+	}
+
+	if jsonIndex < xprottpIndex {
+		return true
+	}
+
+	return false
 }
 
 func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isJSON := isRequestJSON(r)
+		isJSON := isMimeTypeJSON(r.Header.Get("Content-Type"))
 		dec := func(i interface{}) (err error) {
 			defer func() {
 				if err != nil {
@@ -159,9 +193,14 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 // WriteMessage is exported to be used for middleware to return proto message
 func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *http.Request) {
 	var err error
-	isJSON := isRequestJSON(r)
-	if isJSON && w.Header().Get("Content-Type") == "" {
-		w.Header().Add("Content-Type", "application/json")
+	var isJSON = isMimeTypeJSON(w.Header().Get("Content-Type"))
+	if w.Header().Get("Content-Type") == "" {
+		isJSON = shouldReturnJSON(r)
+		if isJSON {
+			w.Header().Set("Content-Type", fmt.Sprintf("%s;<%s>", jsonContentType, reflect.TypeOf(msg)))
+		} else {
+			w.Header().Set("Content-Type", fmt.Sprintf("%s;<%s>", xprottpContentType, reflect.TypeOf(msg)))
+		}
 	}
 
 	if statusCode > 0 {

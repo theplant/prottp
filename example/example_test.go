@@ -20,13 +20,14 @@ import (
 	"github.com/theplant/prottp/example"
 )
 
-var emptyJson = `{
+var emptyJSON = `{
 
 }`
 
 var cases = []struct {
 	Name                string
 	URL                 string
+	Accept              string
 	JSONReqBody         string
 	ExpectedJSONResBody string
 	PBReqBody           proto.Message
@@ -52,7 +53,7 @@ var cases = []struct {
 }`,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 78
-Content-Type: application/json
+Content-Type: application/json;<*example.SearchResponse>
 
 `,
 	},
@@ -70,6 +71,56 @@ Content-Type: application/json
 				{Url: "query string protobuf", SomeSnakedName: 2},
 			},
 		},
+		ExpectedHeadersDump: `HTTP/1.1 200 OK
+Content-Length: 31
+Content-Type: application/x.prottp;<*example.SearchResponse>
+
+`,
+	},
+
+	{
+		Name:   "test request json, response x.prottp normal",
+		URL:    "/example.SearchService/Search",
+		Accept: "application/x.prottp, application/json;q=0.9, */*;q=0.8",
+		JSONReqBody: `{
+			"query": "query string protobuf",
+			"page_number": 1,
+			"result_per_page": 10
+		}`,
+		ExpectedPBResBody: &example.SearchResponse{
+			Result: []*example.Result{
+				{Url: "query string protobuf", SomeSnakedName: 2},
+			},
+		},
+		ExpectedHeadersDump: `HTTP/1.1 200 OK
+Content-Length: 31
+Content-Type: application/x.prottp;<*example.SearchResponse>
+
+`,
+	},
+
+	{
+		Name:   "test request x.prottp, response json normal",
+		URL:    "/example.SearchService/Search",
+		Accept: "application/json;q=0.9, */*;q=0.8",
+		PBReqBody: &example.SearchRequest{
+			Query:         "query string protobuf",
+			PageNumber:    2,
+			ResultPerPage: 10,
+		},
+		ExpectedJSONResBody: `{
+	"result": [
+		{
+			"url": "query string protobuf",
+			"some_snaked_name": 2
+		}
+	]
+}`,
+		ExpectedHeadersDump: `HTTP/1.1 200 OK
+Content-Length: 87
+Content-Type: application/json;<*example.SearchResponse>
+
+`,
 	},
 
 	{
@@ -95,7 +146,7 @@ Content-Type: application/json
 			"result_per_page": 10]
 		}`,
 		ExpectedStatusCode:  400,
-		ExpectedJSONResBody: emptyJson,
+		ExpectedJSONResBody: emptyJSON,
 	},
 	{
 		Name: "test response nil should panic",
@@ -151,11 +202,11 @@ Content-Type: application/json
 			"username": "felix",
 			"password": "p"
 		}`,
-		ExpectedJSONResBody: emptyJson,
+		ExpectedJSONResBody: emptyJSON,
 		ExpectedStatusCode:  200,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 4
-Content-Type: application/json
+Content-Type: application/json;<*example.LoginResult>
 Set-Cookie: cookie
 
 `,
@@ -188,7 +239,16 @@ func TestPassThrough(t *testing.T) {
 			req = bytes.NewBuffer(b)
 		}
 
-		res, err := client.Post(ts.URL+c.URL, contentType, req)
+		hreq, err := http.NewRequest("POST", ts.URL+c.URL, req)
+		if err != nil {
+			panic(err)
+		}
+		hreq.Header.Set("Content-Type", contentType)
+		if len(c.Accept) > 0 {
+			hreq.Header.Set("Accept", c.Accept)
+		}
+
+		res, err := client.Do(hreq)
 		if err != nil {
 			panic(err)
 		}
@@ -204,13 +264,13 @@ func TestPassThrough(t *testing.T) {
 		if len(c.ExpectedHeadersDump) > 0 {
 			hdiff := testingutils.PrettyJsonDiff(c.ExpectedHeadersDump, dumpCleanResponseHeaders(res))
 			if len(hdiff) > 0 {
-				t.Error(hdiff)
+				t.Error(c.Name, hdiff)
 			}
 		}
 
 		var expected interface{}
 		var actual interface{}
-		if c.PBReqBody == nil {
+		if c.ExpectedPBResBody == nil {
 			expected = c.ExpectedJSONResBody
 			actual = string(resB)
 		} else {
