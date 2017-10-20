@@ -53,7 +53,7 @@ var cases = []struct {
 }`,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 78
-Content-Type: application/json;<*example.SearchResponse>
+Content-Type: application/json;type=example.SearchResponse
 
 `,
 	},
@@ -72,8 +72,8 @@ Content-Type: application/json;<*example.SearchResponse>
 			},
 		},
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
-Content-Length: 31
-Content-Type: application/x.prottp;<*example.SearchResponse>
+Content-Length: 27
+Content-Type: application/x.prottp;type=example.SearchResponse
 
 `,
 	},
@@ -93,8 +93,8 @@ Content-Type: application/x.prottp;<*example.SearchResponse>
 			},
 		},
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
-Content-Length: 31
-Content-Type: application/x.prottp;<*example.SearchResponse>
+Content-Length: 27
+Content-Type: application/x.prottp;type=example.SearchResponse
 
 `,
 	},
@@ -118,7 +118,7 @@ Content-Type: application/x.prottp;<*example.SearchResponse>
 }`,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 87
-Content-Type: application/json;<*example.SearchResponse>
+Content-Type: application/json;type=example.SearchResponse
 
 `,
 	},
@@ -206,7 +206,7 @@ Content-Type: application/json;<*example.SearchResponse>
 		ExpectedStatusCode:  200,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 4
-Content-Type: application/json;<*example.LoginResult>
+Content-Type: application/json;type=example.LoginResult
 Set-Cookie: cookie
 
 `,
