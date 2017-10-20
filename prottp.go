@@ -196,11 +196,11 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 	var isJSON = isMimeTypeJSON(w.Header().Get("Content-Type"))
 	if w.Header().Get("Content-Type") == "" {
 		isJSON = shouldReturnJSON(r)
+		contentType := xprottpContentType
 		if isJSON {
-			w.Header().Set("Content-Type", fmt.Sprintf("%s;<%s>", jsonContentType, reflect.TypeOf(msg)))
-		} else {
-			w.Header().Set("Content-Type", fmt.Sprintf("%s;<%s>", xprottpContentType, reflect.TypeOf(msg)))
+			contentType = jsonContentType
 		}
+		w.Header().Set("Content-Type", fmt.Sprintf("%s;<%s>", contentType, reflect.TypeOf(msg)))
 	}
 
 	if statusCode > 0 {
