@@ -11,6 +11,7 @@ import (
 
 	"github.com/theplant/appkit/server"
 	"github.com/theplant/prottp"
+	vproto "github.com/theplant/validator/proto"
 )
 
 var _ SearchServiceServer = (*search)(nil)
@@ -36,6 +37,14 @@ func (s search) SearchAlt(ctx context.Context, r *SearchRequest) (*SearchRespons
 func (s search) SearchReturnError(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
 	fmt.Println("SearchReturnError", r)
 	return nil, prottp.NewError(500, &SearchError{Field: "field123", ErrorCount: 100})
+}
+
+func (s search) SearchValidateError(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
+	fmt.Println("SearchReturnError", r)
+	return nil, &vproto.Error{
+		Code: "Hello",
+		Msg:  "Some fields are error",
+	}
 }
 
 func (s search) SearchReturnNil(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {

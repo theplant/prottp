@@ -174,7 +174,10 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			if statusErr, ok := err.(HTTPStatusError); ok {
 				handled = true
 				statusCode = statusErr.HTTPStatusCode()
+				fmt.Println("statusCode", statusCode, statusErr)
 			}
+			_, ok := err.(ErrorResponse)
+			fmt.Println("err.(ErrorResponse)", err, ok)
 			if msgErr, ok := err.(ErrorResponse); ok {
 				WriteMessage(statusCode, msgErr.Message(), w, r)
 				handled = true
@@ -202,24 +205,27 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 		w.Header().Set("Content-Type", fmt.Sprintf("%s;type=%s", contentType, proto.MessageName(msg)))
 	}
 
-	if statusCode > 0 {
-		w.WriteHeader(statusCode)
-	}
-
 	// start write body
+	var b []byte
+
 	if isJSON {
 		buf := bytes.NewBuffer(nil)
 		err = marshaler.Marshal(buf, msg)
 		if err != nil {
 			panic(kerrs.Wrapv(err, "marshal message to json error", "response", msg))
 		}
-		w.Write(buf.Bytes())
+		b = buf.Bytes()
 	} else {
-		var b []byte
 		b, err = proto.Marshal(msg)
 		if err != nil {
 			panic(kerrs.Wrapv(err, "marshal message to proto error", "response", msg))
 		}
-		w.Write(b)
 	}
+
+	if statusCode == 0 {
+		statusCode = http.StatusOK
+	}
+
+	w.WriteHeader(statusCode)
+	w.Write(b)
 }

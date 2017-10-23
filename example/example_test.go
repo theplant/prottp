@@ -138,6 +138,20 @@ Content-Type: application/json;type=example.SearchResponse
 }`,
 	},
 	{
+		Name: "test validator error in response body",
+		URL:  "/example.SearchService/SearchValidateError",
+		JSONReqBody: `{
+			"query": "query string",
+			"page_number": 1,
+			"result_per_page": 10
+		}`,
+		ExpectedStatusCode: 422,
+		ExpectedJSONResBody: `{
+	"code": "Hello",
+	"msg": "Some fields are error"
+}`,
+	},
+	{
 		Name: "test json broken request body should not panic",
 		URL:  "/example.SearchService/SearchReturnError",
 		JSONReqBody: `{
@@ -258,7 +272,7 @@ func TestPassThrough(t *testing.T) {
 		}
 		if c.ExpectedStatusCode != 0 {
 			if c.ExpectedStatusCode != res.StatusCode {
-				t.Errorf("expected status code %d, but was %d", c.ExpectedStatusCode, res.StatusCode)
+				t.Fatalf("expected status code %d, but was %d", c.ExpectedStatusCode, res.StatusCode)
 			}
 		}
 		if len(c.ExpectedHeadersDump) > 0 {
