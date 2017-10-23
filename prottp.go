@@ -174,10 +174,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			if statusErr, ok := err.(HTTPStatusError); ok {
 				handled = true
 				statusCode = statusErr.HTTPStatusCode()
-				fmt.Println("statusCode", statusCode, statusErr)
 			}
-			_, ok := err.(ErrorResponse)
-			fmt.Println("err.(ErrorResponse)", err, ok)
 			if msgErr, ok := err.(ErrorResponse); ok {
 				WriteMessage(statusCode, msgErr.Message(), w, r)
 				handled = true
