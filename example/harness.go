@@ -5,8 +5,10 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/theplant/appkit/log"
 	"github.com/theplant/appkit/server"
 	"github.com/theplant/prottp"
+	"github.com/theplant/prottp/trace"
 	vproto "github.com/theplant/validator/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -96,12 +98,60 @@ func mustLogin(in http.Handler) http.Handler {
 	})
 }
 
-func Mount(mux *http.ServeMux) {
+func Mount(mux *http.ServeMux, l log.Logger) {
 	a := account{}
 	s := search{}
 	au := auth{}
 
+	var sinterceptor = trace.UnaryServerInterceptor(l, []trace.MethodTrace{
+		{
+			MethodName: "Search",
+
+			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			ResponseFields: []string{".[0]", ".Result.[0]"},
+		},
+		{
+			MethodName: "SearchAlt",
+
+			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			ResponseFields: []string{},
+		},
+		{
+			MethodName: "SearchReturnError",
+
+			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			ResponseFields: []string{},
+		},
+		{
+			MethodName: "SearchValidateError",
+
+			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			ResponseFields: []string{},
+		},
+		{
+			MethodName: "SearchReturnNil",
+
+			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			ResponseFields: []string{".Result"},
+		},
+		{
+			MethodName: "SearchWithUnexpectedError",
+
+			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			ResponseFields: []string{},
+		},
+	})
+
+	var auinterceptor = trace.UnaryServerInterceptor(l, []trace.MethodTrace{
+		{
+			MethodName: "Login",
+
+			RequestFields:  []string{".Username"},
+			ResponseFields: []string{".Status"},
+		},
+	})
+
 	prottp.Handle(mux, a, nil, mustLogin)
-	prottp.Handle(mux, au, nil, server.WithHeader)
-	prottp.Handle(mux, s, nil)
+	prottp.Handle(mux, au, auinterceptor, server.WithHeader)
+	prottp.Handle(mux, s, sinterceptor)
 }
