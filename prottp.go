@@ -8,9 +8,8 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/ptypes/empty"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/theplant/appkit/kerrs"
 	"github.com/theplant/appkit/server"
 	"google.golang.org/grpc"
@@ -58,24 +57,24 @@ func NewError(statusCode int, body proto.Message) ErrorWithStatus {
 	return &respError{statusCode: statusCode, body: body}
 }
 
-func Handle(mux *http.ServeMux, service Service, mws ...server.Middleware) {
+func Handle(mux *http.ServeMux, service Service, interceptor grpc.UnaryServerInterceptor, mws ...server.Middleware) {
 	sn := service.Description().ServiceName
 	fmt.Println("/" + sn)
-	hd := Wrap(service)
+	hd := Wrap(service, interceptor)
 	if len(mws) > 0 {
 		hd = server.Compose(mws...)(hd)
 	}
 	mux.Handle("/"+sn+"/", http.StripPrefix("/"+sn, hd))
 }
 
-func Wrap(service Service) http.Handler {
+func Wrap(service Service, interceptor grpc.UnaryServerInterceptor) http.Handler {
 	mux := http.NewServeMux()
 
 	d := service.Description()
 
 	for _, desc := range d.Methods {
 		fmt.Println("/" + d.ServiceName + "/" + desc.MethodName)
-		mux.Handle("/"+desc.MethodName, wrapMethod(service, desc))
+		mux.Handle("/"+desc.MethodName, wrapMethod(service, desc, interceptor))
 	}
 
 	return mux
@@ -129,7 +128,7 @@ func shouldReturnJSON(r *http.Request) bool {
 	return false
 }
 
-func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
+func wrapMethod(service interface{}, m grpc.MethodDesc, interceptor grpc.UnaryServerInterceptor) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		isJSON := isMimeTypeJSON(r.Header.Get("Content-Type"))
 		dec := func(i interface{}) (err error) {
@@ -152,12 +151,6 @@ func wrapMethod(service interface{}, m grpc.MethodDesc) http.Handler {
 			return
 		}
 
-		var interceptor grpc.UnaryServerInterceptor
-		//		interceptor := func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (resp interface{}, err error) {
-		//			fmt.Println("req", req)
-		//		}
-
-		//) (interface{}, error) {
 		resp, err := m.Handler(
 			//srv interface{},
 			service,

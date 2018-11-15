@@ -5,13 +5,11 @@ import (
 	"io"
 	"net/http"
 
-	"google.golang.org/grpc"
-
-	"golang.org/x/net/context"
-
 	"github.com/theplant/appkit/server"
 	"github.com/theplant/prottp"
 	vproto "github.com/theplant/validator/proto"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 var _ SearchServiceServer = (*search)(nil)
@@ -103,7 +101,7 @@ func Mount(mux *http.ServeMux) {
 	s := search{}
 	au := auth{}
 
-	prottp.Handle(mux, a, mustLogin)
-	prottp.Handle(mux, au, server.WithHeader)
-	prottp.Handle(mux, s)
+	prottp.Handle(mux, a, nil, mustLogin)
+	prottp.Handle(mux, au, nil, server.WithHeader)
+	prottp.Handle(mux, s, nil)
 }
