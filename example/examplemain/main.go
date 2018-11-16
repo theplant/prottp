@@ -10,10 +10,10 @@ import (
 )
 
 func main() {
-
-	mux := http.NewServeMux()
-	example.Mount(mux)
 	l := log.Default()
+	mux := http.NewServeMux()
+	example.Mount(mux, l)
+
 	defaultmws := server.Compose(
 		server.DefaultMiddleware(l),
 	)

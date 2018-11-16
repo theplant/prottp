@@ -15,9 +15,8 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	"github.com/theplant/appkit/log"
 	"github.com/theplant/appkit/server"
-	"github.com/theplant/testingutils"
-
 	"github.com/theplant/prottp/example"
+	"github.com/theplant/testingutils"
 )
 
 var emptyJSON = `{
@@ -316,6 +315,7 @@ func dumpCleanResponseHeaders(res *http.Response) (r string) {
 
 func tserver() *httptest.Server {
 	mux := http.NewServeMux()
-	example.Mount(mux)
-	return httptest.NewServer(server.DefaultMiddleware(log.Default())(mux))
+	l := log.Default()
+	example.Mount(mux, l)
+	return httptest.NewServer(server.DefaultMiddleware(l)(mux))
 }
