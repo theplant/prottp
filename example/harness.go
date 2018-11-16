@@ -107,37 +107,37 @@ func Mount(mux *http.ServeMux, l log.Logger) {
 		{
 			MethodName: "Search",
 
-			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			RequestFields:  []string{".Query", ".PageNumber", ".ResultPerPage"},
 			ResponseFields: []string{".[0]", ".Result.[0]"},
 		},
 		{
 			MethodName: "SearchAlt",
 
-			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			RequestFields:  []string{".Query", ".PageNumber", ".ResultPerPage"},
 			ResponseFields: []string{},
 		},
 		{
 			MethodName: "SearchReturnError",
 
-			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			RequestFields:  []string{".Query", ".PageNumber", ".ResultPerPage"},
 			ResponseFields: []string{},
 		},
 		{
 			MethodName: "SearchValidateError",
 
-			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			RequestFields:  []string{".Query", ".PageNumber", ".ResultPerPage"},
 			ResponseFields: []string{},
 		},
 		{
 			MethodName: "SearchReturnNil",
 
-			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			RequestFields:  []string{".Query", ".PageNumber", ".ResultPerPage"},
 			ResponseFields: []string{".Result"},
 		},
 		{
 			MethodName: "SearchWithUnexpectedError",
 
-			RequestFields:  []string{".Query", ".PageNumber", "ResultPerPage"},
+			RequestFields:  []string{".Query", ".PageNumber", ".ResultPerPage"},
 			ResponseFields: []string{},
 		},
 	})

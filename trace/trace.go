@@ -20,40 +20,22 @@ func UnaryServerInterceptor(log kitlog.Logger, traces []MethodTrace) grpc.UnaryS
 		traces[i].MethodName = fmt.Sprintf("/%s", traces[i].MethodName)
 	}
 
-	var findTrace = func(name string) *MethodTrace {
-		for _, trace := range traces {
-			if strings.HasSuffix(name, trace.MethodName) {
-				return &trace
-			}
-		}
-
-		return nil
-	}
-
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		defer func() {
-			trace := findTrace(info.FullMethod)
+			trace := findTrace(traces, info.FullMethod)
 			if trace == nil {
 				return
 			}
 
 			var result []interface{}
-			if req != nil || !reflect.ValueOf(req).IsNil() {
-				result = append(
-					result,
-					extract(req, requestPrefix, trace.RequestFields)...,
-				)
-			} else {
-				result = append(result, requestPrefix, "<nil>")
-			}
-			if resp != nil && !reflect.ValueOf(resp).IsNil() {
-				result = append(
-					result,
-					extract(resp, responsePrefix, trace.ResponseFields)...,
-				)
-			} else {
-				result = append(result, responsePrefix, "<nil>")
-			}
+			result = append(
+				result,
+				extract(req, requestPrefix, trace.RequestFields)...,
+			)
+			result = append(
+				result,
+				extract(resp, responsePrefix, trace.ResponseFields)...,
+			)
 
 			ilog, ok := kitlog.FromContext(ctx)
 			if !ok {
@@ -98,12 +80,26 @@ type MethodTrace struct {
 	ResponseFields []string
 }
 
+var findTrace = func(traces []MethodTrace, name string) *MethodTrace {
+	for _, trace := range traces {
+		if strings.HasSuffix(name, trace.MethodName) {
+			return &trace
+		}
+	}
+
+	return nil
+}
+
 const (
-	requestPrefix  = "Request"
-	responsePrefix = "Response"
+	requestPrefix  = "request"
+	responsePrefix = "response"
 )
 
 func extract(msg interface{}, prefix string, fields []string) []interface{} {
+	if msg == nil || reflect.ValueOf(msg).IsNil() {
+		return []interface{}{prefix, "<nil>"}
+	}
+
 	var result []interface{}
 	for _, f := range fields {
 		e, err := reflectutils.Get(msg, f)
