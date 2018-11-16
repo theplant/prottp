@@ -21,17 +21,18 @@ func UnaryServerInterceptor(log kitlog.Logger, traces []MethodTrace) grpc.UnaryS
 	}
 
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		defer func() {
-			trace := findTrace(traces, info.FullMethod)
-			if trace == nil {
-				return
-			}
+		trace := findTrace(traces, info.FullMethod)
+		if trace == nil {
+			return
+		}
 
-			var result []interface{}
-			result = append(
-				result,
-				extract(req, requestPrefix, trace.RequestFields)...,
-			)
+		var result = []interface{}{"full_method", info.FullMethod}
+		result = append(
+			result,
+			extract(req, requestPrefix, trace.RequestFields)...,
+		)
+
+		defer func() {
 			result = append(
 				result,
 				extract(resp, responsePrefix, trace.ResponseFields)...,
@@ -113,7 +114,7 @@ func extract(msg interface{}, prefix string, fields []string) []interface{} {
 		} else {
 			result = append(
 				result,
-				ff, fmt.Sprintf("%#v", e),
+				ff, fmt.Sprintf("%+v", e),
 			)
 		}
 	}
