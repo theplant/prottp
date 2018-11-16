@@ -35,11 +35,15 @@ func testUnaryServerInterceptor(t *testing.T, tc *testInterceptorCase) {
 		actualLog := buf.String()
 
 		if r := recover(); r != nil {
-			fmt.Println("get a runtime err:", r)
+			t.Log("get a runtime err:", r)
 			// debug.PrintStack()
 
+			if fmt.Sprint(r) != tc.runtimeErr {
+				t.Fatalf("name: %s\nwant err: %s\nbut get: %s\n", tc.name, tc.runtimeErr, r)
+			}
+
 			if !strings.Contains(actualLog, tc.exceptLog) {
-				t.Fatalf("name: %s\nwant nactual: %s\ncontains: %s\n", tc.name, actualLog, tc.exceptLog)
+				t.Fatalf("name: %s\nwant actual: %s\ncontains: %s\n", tc.name, actualLog, tc.exceptLog)
 			}
 
 			return
@@ -61,7 +65,8 @@ type testInterceptorCase struct {
 	info    *grpc.UnaryServerInfo
 	handler grpc.UnaryHandler
 
-	exceptLog string
+	exceptLog  string
+	runtimeErr string
 }
 
 var testInterceptorCases = []testInterceptorCase{
@@ -189,7 +194,8 @@ var testInterceptorCases = []testInterceptorCase{
 			panic(errors.New("system error"))
 		},
 
-		exceptLog: `github.com/theplant/prottp/trace/trace_test.go:189`,
+		exceptLog:  `github.com/theplant/prottp/trace/trace_test.go:194`,
+		runtimeErr: "system error",
 	},
 
 	{
@@ -213,7 +219,26 @@ var testInterceptorCases = []testInterceptorCase{
 			panic("must nil point in above")
 		},
 
-		exceptLog: `github.com/theplant/prottp/trace/trace_test.go:212`,
+		exceptLog:  `github.com/theplant/prottp/trace/trace_test.go:218`,
+		runtimeErr: "runtime error: invalid memory address or nil pointer dereference",
+	},
+
+	{
+		name: "call handler not has trace",
+
+		trace: trace.MethodTrace{},
+		req: &example.SearchRequest{
+			Query: "query",
+		},
+		info: &grpc.UnaryServerInfo{
+			FullMethod: "/example.SearchService/Search",
+		},
+		handler: func(ctx context.Context, req interface{}) (interface{}, error) {
+			panic("must exec handler when not has trace")
+		},
+
+		exceptLog:  ``,
+		runtimeErr: `must exec handler when not has trace`,
 	},
 }
 

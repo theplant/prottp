@@ -23,7 +23,7 @@ func UnaryServerInterceptor(log kitlog.Logger, traces []MethodTrace) grpc.UnaryS
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		trace := findTrace(traces, info.FullMethod)
 		if trace == nil {
-			return
+			return handler(ctx, req)
 		}
 
 		var result = []interface{}{"full_method", info.FullMethod}
