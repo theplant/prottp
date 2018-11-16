@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/go-kit/kit/log"
@@ -31,12 +32,19 @@ func testUnaryServerInterceptor(t *testing.T, tc *testInterceptorCase) {
 	)
 
 	defer func() {
+		actualLog := buf.String()
+
 		if r := recover(); r != nil {
 			fmt.Println("get a runtime err:", r)
 			// debug.PrintStack()
+
+			if !strings.Contains(actualLog, tc.exceptLog) {
+				t.Fatalf("name: %s\nwant nactual: %s\ncontains: %s\n", tc.name, actualLog, tc.exceptLog)
+			}
+
+			return
 		}
 
-		actualLog := buf.String()
 		if actualLog != tc.exceptLog+"\n" {
 			t.Fatalf("name: %s\nexcept: %s\nactual: %s\n", tc.name, tc.exceptLog, actualLog)
 		}
@@ -58,7 +66,7 @@ type testInterceptorCase struct {
 
 var testInterceptorCases = []testInterceptorCase{
 	{
-		name: "request sucess with some miss fileds",
+		name: "request sucess with some miss fields",
 
 		trace: trace.MethodTrace{
 			MethodName: "Search",
@@ -181,7 +189,7 @@ var testInterceptorCases = []testInterceptorCase{
 			panic(errors.New("system error"))
 		},
 
-		exceptLog: `level=error full_method=/example.SearchService/Search request.Query=query request.PageNumber=0 request.ResultPerPage=0 response=<nil> msg="system error: system error" stacktrace="system error\ngithub.com/theplant/appkit/kerrs.Wrapv\n\t/Users/jaden/work/src/github.com/theplant/appkit/kerrs/errors.go:27\ngithub.com/theplant/appkit/log.Logger.WrapError\n\t/Users/jaden/work/src/github.com/theplant/appkit/log/log.go:43\ngithub.com/theplant/prottp/trace.UnaryServerInterceptor.func1.1\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace.go:51\nruntime.call64\n\t/usr/local/go/src/runtime/asm_amd64.s:523\nruntime.gopanic\n\t/usr/local/go/src/runtime/panic.go:513\ngithub.com/theplant/prottp/trace_test.glob..func5\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace_test.go:181\ngithub.com/theplant/prottp/trace.UnaryServerInterceptor.func1\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace.go:70\ngithub.com/theplant/prottp/trace_test.testUnaryServerInterceptor\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace_test.go:45\ngithub.com/theplant/prottp/trace_test.TestUnaryServerInterceptor\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace_test.go:22\ntesting.tRunner\n\t/usr/local/go/src/testing/testing.go:827\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1333"`,
+		exceptLog: `github.com/theplant/prottp/trace/trace_test.go:189`,
 	},
 
 	{
@@ -205,7 +213,7 @@ var testInterceptorCases = []testInterceptorCase{
 			panic("must nil point in above")
 		},
 
-		exceptLog: `level=error full_method=/example.SearchService/Search request.Query=query request.PageNumber=0 request.ResultPerPage=0 response=<nil> msg="runtime error: invalid memory address or nil pointer dereference: runtime error: invalid memory address or nil pointer dereference" stacktrace="runtime error: invalid memory address or nil pointer dereference\ngithub.com/theplant/appkit/kerrs.Wrapv\n\t/Users/jaden/work/src/github.com/theplant/appkit/kerrs/errors.go:27\ngithub.com/theplant/appkit/log.Logger.WrapError\n\t/Users/jaden/work/src/github.com/theplant/appkit/log/log.go:43\ngithub.com/theplant/prottp/trace.UnaryServerInterceptor.func1.1\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace.go:51\nruntime.call64\n\t/usr/local/go/src/runtime/asm_amd64.s:523\nruntime.gopanic\n\t/usr/local/go/src/runtime/panic.go:513\nruntime.panicmem\n\t/usr/local/go/src/runtime/panic.go:82\nruntime.sigpanic\n\t/usr/local/go/src/runtime/signal_unix.go:390\ngithub.com/theplant/prottp/trace_test.glob..func6\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace_test.go:204\ngithub.com/theplant/prottp/trace.UnaryServerInterceptor.func1\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace.go:70\ngithub.com/theplant/prottp/trace_test.testUnaryServerInterceptor\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace_test.go:45\ngithub.com/theplant/prottp/trace_test.TestUnaryServerInterceptor\n\t/Users/jaden/work/src/github.com/theplant/prottp/trace/trace_test.go:22\ntesting.tRunner\n\t/usr/local/go/src/testing/testing.go:827\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1333"`,
+		exceptLog: `github.com/theplant/prottp/trace/trace_test.go:212`,
 	},
 }
 
