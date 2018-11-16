@@ -151,7 +151,7 @@ func Mount(mux *http.ServeMux, l log.Logger) {
 		},
 	})
 
-	prottp.Handle(mux, a, nil, mustLogin)
-	prottp.Handle(mux, au, auinterceptor, server.WithHeader)
-	prottp.Handle(mux, s, sinterceptor)
+	prottp.Handle(mux, a, mustLogin)
+	prottp.HandleWithInterceptor(mux, au, auinterceptor, server.WithHeader)
+	prottp.HandleWithInterceptor(mux, s, sinterceptor)
 }

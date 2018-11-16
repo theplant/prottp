@@ -57,17 +57,15 @@ func NewError(statusCode int, body proto.Message) ErrorWithStatus {
 	return &respError{statusCode: statusCode, body: body}
 }
 
-func Handle(mux *http.ServeMux, service Service, interceptor grpc.UnaryServerInterceptor, mws ...server.Middleware) {
-	sn := service.Description().ServiceName
-	fmt.Println("/" + sn)
-	hd := Wrap(service, interceptor)
-	if len(mws) > 0 {
-		hd = server.Compose(mws...)(hd)
-	}
-	mux.Handle("/"+sn+"/", http.StripPrefix("/"+sn, hd))
+func Handle(mux *http.ServeMux, service Service, mws ...server.Middleware) {
+	HandleWithInterceptor(mux, service, nil, mws...)
 }
 
-func Wrap(service Service, interceptor grpc.UnaryServerInterceptor) http.Handler {
+func Wrap(service Service) http.Handler {
+	return WrapWithInterceptor(service, nil)
+}
+
+func WrapWithInterceptor(service Service, interceptor grpc.UnaryServerInterceptor) http.Handler {
 	mux := http.NewServeMux()
 
 	d := service.Description()
@@ -78,6 +76,16 @@ func Wrap(service Service, interceptor grpc.UnaryServerInterceptor) http.Handler
 	}
 
 	return mux
+}
+
+func HandleWithInterceptor(mux *http.ServeMux, service Service, interceptor grpc.UnaryServerInterceptor, mws ...server.Middleware) {
+	sn := service.Description().ServiceName
+	fmt.Println("/" + sn)
+	hd := WrapWithInterceptor(service, interceptor)
+	if len(mws) > 0 {
+		hd = server.Compose(mws...)(hd)
+	}
+	mux.Handle("/"+sn+"/", http.StripPrefix("/"+sn, hd))
 }
 
 var marshaler = jsonpb.Marshaler{
