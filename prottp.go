@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -224,6 +225,7 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 		statusCode = http.StatusOK
 	}
 
+	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 	w.WriteHeader(statusCode)
 	w.Write(b)
 }
