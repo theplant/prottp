@@ -201,7 +201,7 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 		if isJSON {
 			contentType = jsonContentType
 		}
-		w.Header().Set("Content-Type", fmt.Sprintf("%s;type=%s", contentType, proto.MessageName(msg)))
+		w.Header().Set("Content-Type", contentType)
 	}
 
 	// start write body
