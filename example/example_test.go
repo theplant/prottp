@@ -52,7 +52,7 @@ var cases = []struct {
 }`,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 78
-Content-Type: application/json;type=example.SearchResponse
+Content-Type: application/json
 
 `,
 	},
@@ -72,7 +72,7 @@ Content-Type: application/json;type=example.SearchResponse
 		},
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 27
-Content-Type: application/x.prottp;type=example.SearchResponse
+Content-Type: application/x.prottp
 
 `,
 	},
@@ -93,7 +93,7 @@ Content-Type: application/x.prottp;type=example.SearchResponse
 		},
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 27
-Content-Type: application/x.prottp;type=example.SearchResponse
+Content-Type: application/x.prottp
 
 `,
 	},
@@ -117,7 +117,7 @@ Content-Type: application/x.prottp;type=example.SearchResponse
 }`,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 87
-Content-Type: application/json;type=example.SearchResponse
+Content-Type: application/json
 
 `,
 	},
@@ -219,7 +219,7 @@ Content-Type: application/json;type=example.SearchResponse
 		ExpectedStatusCode:  200,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 4
-Content-Type: application/json;type=example.LoginResult
+Content-Type: application/json
 Set-Cookie: cookie
 
 `,
