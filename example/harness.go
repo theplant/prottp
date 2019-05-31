@@ -1,9 +1,11 @@
 package example
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/theplant/appkit/log"
 	"github.com/theplant/appkit/server"
@@ -154,4 +156,21 @@ func Mount(mux *http.ServeMux, l log.Logger) {
 	prottp.Handle(mux, a, mustLogin)
 	prottp.HandleWithInterceptor(mux, au, auinterceptor, server.WithHeader)
 	prottp.HandleWithInterceptor(mux, s, sinterceptor)
+
+	mux.HandleFunc("/large_response_not_auto_set_content_length", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err := w.Write(LargeJsonResponse())
+		if err != nil {
+			panic(err)
+		}
+	})
+}
+
+func LargeJsonResponse() []byte {
+	data, err := json.Marshal(strings.Repeat("*", 1024*10))
+	if err != nil {
+		panic(err)
+	}
+	return data
 }

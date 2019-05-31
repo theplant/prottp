@@ -225,7 +225,9 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 		statusCode = http.StatusOK
 	}
 
+	// see "large respone http server not auto send Content-Length" test case
 	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
+
 	w.WriteHeader(statusCode)
 	w.Write(b)
 }
