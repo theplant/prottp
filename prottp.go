@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -200,7 +201,7 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 		if isJSON {
 			contentType = jsonContentType
 		}
-		w.Header().Set("Content-Type", fmt.Sprintf("%s;type=%s", contentType, proto.MessageName(msg)))
+		w.Header().Set("Content-Type", contentType)
 	}
 
 	// start write body
@@ -223,6 +224,9 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 	if statusCode == 0 {
 		statusCode = http.StatusOK
 	}
+
+	// see "large respone http server not auto send Content-Length" test case
+	w.Header().Set("Content-Length", strconv.Itoa(len(b)))
 
 	w.WriteHeader(statusCode)
 	w.Write(b)

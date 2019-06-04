@@ -52,7 +52,7 @@ var cases = []struct {
 }`,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 78
-Content-Type: application/json;type=example.SearchResponse
+Content-Type: application/json
 
 `,
 	},
@@ -72,7 +72,7 @@ Content-Type: application/json;type=example.SearchResponse
 		},
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 27
-Content-Type: application/x.prottp;type=example.SearchResponse
+Content-Type: application/x.prottp
 
 `,
 	},
@@ -93,7 +93,7 @@ Content-Type: application/x.prottp;type=example.SearchResponse
 		},
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 27
-Content-Type: application/x.prottp;type=example.SearchResponse
+Content-Type: application/x.prottp
 
 `,
 	},
@@ -117,7 +117,7 @@ Content-Type: application/x.prottp;type=example.SearchResponse
 }`,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 87
-Content-Type: application/json;type=example.SearchResponse
+Content-Type: application/json
 
 `,
 	},
@@ -219,8 +219,20 @@ Content-Type: application/json;type=example.SearchResponse
 		ExpectedStatusCode:  200,
 		ExpectedHeadersDump: `HTTP/1.1 200 OK
 Content-Length: 4
-Content-Type: application/json;type=example.LoginResult
+Content-Type: application/json
 Set-Cookie: cookie
+
+`,
+	},
+	{
+		Name:                "large respone http server not auto send Content-Length",
+		URL:                 "/large_response_not_auto_set_content_length",
+		JSONReqBody:         `null`,
+		ExpectedJSONResBody: string(example.LargeJsonResponse()),
+		ExpectedStatusCode:  200,
+		ExpectedHeadersDump: `HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Content-Type: application/json
 
 `,
 	},
@@ -274,8 +286,11 @@ func TestPassThrough(t *testing.T) {
 				t.Fatalf("expected status code %d, but was %d", c.ExpectedStatusCode, res.StatusCode)
 			}
 		}
+
 		if len(c.ExpectedHeadersDump) > 0 {
-			hdiff := testingutils.PrettyJsonDiff(c.ExpectedHeadersDump, dumpCleanResponseHeaders(res))
+			header := dumpCleanResponseHeaders(res)
+			hdiff := testingutils.PrettyJsonDiff(c.ExpectedHeadersDump, header)
+			t.Logf("%q\n", header)
 			if len(hdiff) > 0 {
 				t.Error(c.Name, hdiff)
 			}
