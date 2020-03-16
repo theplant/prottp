@@ -1,5 +1,4 @@
 import * as $protobuf from "protobufjs";
-
 /** Namespace example. */
 export namespace example {
 
@@ -7,17 +6,17 @@ export namespace example {
     interface ISearchRequest {
 
         /** SearchRequest query */
-        query?: string;
+        query?: (string|null);
 
         /** SearchRequest pageNumber */
-        pageNumber?: number;
+        pageNumber?: (number|null);
 
         /** SearchRequest resultPerPage */
-        resultPerPage?: number;
+        resultPerPage?: (number|null);
     }
 
     /** Represents a SearchRequest. */
-    class SearchRequest {
+    class SearchRequest implements ISearchRequest {
 
         /**
          * Constructs a new SearchRequest.
@@ -109,11 +108,11 @@ export namespace example {
     interface ISearchResponse {
 
         /** SearchResponse result */
-        result?: example.IResult[];
+        result?: (example.IResult[]|null);
     }
 
     /** Represents a SearchResponse. */
-    class SearchResponse {
+    class SearchResponse implements ISearchResponse {
 
         /**
          * Constructs a new SearchResponse.
@@ -199,14 +198,14 @@ export namespace example {
     interface ISearchError {
 
         /** SearchError field */
-        field?: string;
+        field?: (string|null);
 
         /** SearchError errorCount */
-        errorCount?: number;
+        errorCount?: (number|null);
     }
 
     /** Represents a SearchError. */
-    class SearchError {
+    class SearchError implements ISearchError {
 
         /**
          * Constructs a new SearchError.
@@ -295,20 +294,20 @@ export namespace example {
     interface IResult {
 
         /** Result url */
-        url?: string;
+        url?: (string|null);
 
         /** Result title */
-        title?: string;
+        title?: (string|null);
 
         /** Result snippets */
-        snippets?: string;
+        snippets?: (string|null);
 
         /** Result someSnakedName */
-        someSnakedName?: number;
+        someSnakedName?: (number|null);
     }
 
     /** Represents a Result. */
-    class Result {
+    class Result implements IResult {
 
         /**
          * Constructs a new Result.
@@ -462,6 +461,20 @@ export namespace example {
         public searchReturnError(request: example.ISearchRequest): Promise<example.SearchResponse>;
 
         /**
+         * Calls SearchValidateError.
+         * @param request SearchRequest message or plain object
+         * @param callback Node-style callback called with the error, if any, and SearchResponse
+         */
+        public searchValidateError(request: example.ISearchRequest, callback: example.SearchService.SearchValidateErrorCallback): void;
+
+        /**
+         * Calls SearchValidateError.
+         * @param request SearchRequest message or plain object
+         * @returns Promise
+         */
+        public searchValidateError(request: example.ISearchRequest): Promise<example.SearchResponse>;
+
+        /**
          * Calls SearchReturnNil.
          * @param request SearchRequest message or plain object
          * @param callback Node-style callback called with the error, if any, and SearchResponse
@@ -514,6 +527,13 @@ export namespace example {
         type SearchReturnErrorCallback = (error: (Error|null), response?: example.SearchResponse) => void;
 
         /**
+         * Callback as used by {@link example.SearchService#searchValidateError}.
+         * @param error Error, if any
+         * @param [response] SearchResponse
+         */
+        type SearchValidateErrorCallback = (error: (Error|null), response?: example.SearchResponse) => void;
+
+        /**
          * Callback as used by {@link example.SearchService#searchReturnNil}.
          * @param error Error, if any
          * @param [response] SearchResponse
@@ -532,11 +552,11 @@ export namespace example {
     interface IAccountInfo {
 
         /** AccountInfo name */
-        name?: string;
+        name?: (string|null);
     }
 
     /** Represents an AccountInfo. */
-    class AccountInfo {
+    class AccountInfo implements IAccountInfo {
 
         /**
          * Constructs a new AccountInfo.
@@ -622,11 +642,11 @@ export namespace example {
     interface IGetAccountInfoParams {
 
         /** GetAccountInfoParams id */
-        id?: string;
+        id?: (string|null);
     }
 
     /** Represents a GetAccountInfoParams. */
-    class GetAccountInfoParams {
+    class GetAccountInfoParams implements IGetAccountInfoParams {
 
         /**
          * Constructs a new GetAccountInfoParams.
@@ -708,6 +728,192 @@ export namespace example {
         public toJSON(): { [k: string]: any };
     }
 
+    /** Properties of a LoginParams. */
+    interface ILoginParams {
+
+        /** LoginParams username */
+        username?: (string|null);
+
+        /** LoginParams password */
+        password?: (string|null);
+    }
+
+    /** Represents a LoginParams. */
+    class LoginParams implements ILoginParams {
+
+        /**
+         * Constructs a new LoginParams.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: example.ILoginParams);
+
+        /** LoginParams username. */
+        public username: string;
+
+        /** LoginParams password. */
+        public password: string;
+
+        /**
+         * Creates a new LoginParams instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns LoginParams instance
+         */
+        public static create(properties?: example.ILoginParams): example.LoginParams;
+
+        /**
+         * Encodes the specified LoginParams message. Does not implicitly {@link example.LoginParams.verify|verify} messages.
+         * @param message LoginParams message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: example.ILoginParams, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified LoginParams message, length delimited. Does not implicitly {@link example.LoginParams.verify|verify} messages.
+         * @param message LoginParams message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: example.ILoginParams, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a LoginParams message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns LoginParams
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): example.LoginParams;
+
+        /**
+         * Decodes a LoginParams message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns LoginParams
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): example.LoginParams;
+
+        /**
+         * Verifies a LoginParams message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a LoginParams message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns LoginParams
+         */
+        public static fromObject(object: { [k: string]: any }): example.LoginParams;
+
+        /**
+         * Creates a plain object from a LoginParams message. Also converts values to other types if specified.
+         * @param message LoginParams
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: example.LoginParams, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this LoginParams to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a LoginResult. */
+    interface ILoginResult {
+
+        /** LoginResult status */
+        status?: (string|null);
+    }
+
+    /** Represents a LoginResult. */
+    class LoginResult implements ILoginResult {
+
+        /**
+         * Constructs a new LoginResult.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: example.ILoginResult);
+
+        /** LoginResult status. */
+        public status: string;
+
+        /**
+         * Creates a new LoginResult instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns LoginResult instance
+         */
+        public static create(properties?: example.ILoginResult): example.LoginResult;
+
+        /**
+         * Encodes the specified LoginResult message. Does not implicitly {@link example.LoginResult.verify|verify} messages.
+         * @param message LoginResult message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: example.ILoginResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified LoginResult message, length delimited. Does not implicitly {@link example.LoginResult.verify|verify} messages.
+         * @param message LoginResult message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: example.ILoginResult, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a LoginResult message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns LoginResult
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): example.LoginResult;
+
+        /**
+         * Decodes a LoginResult message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns LoginResult
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): example.LoginResult;
+
+        /**
+         * Verifies a LoginResult message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a LoginResult message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns LoginResult
+         */
+        public static fromObject(object: { [k: string]: any }): example.LoginResult;
+
+        /**
+         * Creates a plain object from a LoginResult message. Also converts values to other types if specified.
+         * @param message LoginResult
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: example.LoginResult, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this LoginResult to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
     /** Represents an AccountService */
     class AccountService extends $protobuf.rpc.Service {
 
@@ -751,5 +957,50 @@ export namespace example {
          * @param [response] AccountInfo
          */
         type GetAccountInfoCallback = (error: (Error|null), response?: example.AccountInfo) => void;
+    }
+
+    /** Represents an AuthService */
+    class AuthService extends $protobuf.rpc.Service {
+
+        /**
+         * Constructs a new AuthService service.
+         * @param rpcImpl RPC implementation
+         * @param [requestDelimited=false] Whether requests are length-delimited
+         * @param [responseDelimited=false] Whether responses are length-delimited
+         */
+        constructor(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean);
+
+        /**
+         * Creates new AuthService service using the specified rpc implementation.
+         * @param rpcImpl RPC implementation
+         * @param [requestDelimited=false] Whether requests are length-delimited
+         * @param [responseDelimited=false] Whether responses are length-delimited
+         * @returns RPC service. Useful where requests and/or responses are streamed.
+         */
+        public static create(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean): AuthService;
+
+        /**
+         * Calls Login.
+         * @param request LoginParams message or plain object
+         * @param callback Node-style callback called with the error, if any, and LoginResult
+         */
+        public login(request: example.ILoginParams, callback: example.AuthService.LoginCallback): void;
+
+        /**
+         * Calls Login.
+         * @param request LoginParams message or plain object
+         * @returns Promise
+         */
+        public login(request: example.ILoginParams): Promise<example.LoginResult>;
+    }
+
+    namespace AuthService {
+
+        /**
+         * Callback as used by {@link example.AuthService#login}.
+         * @param error Error, if any
+         * @param [response] LoginResult
+         */
+        type LoginCallback = (error: (Error|null), response?: example.LoginResult) => void;
     }
 }

@@ -1,4 +1,4 @@
-/*eslint-disable block-scoped-var, no-redeclare, no-control-regex, no-prototype-builtins*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 import * as $protobuf from "protobufjs/minimal";
 
 // Common aliases
@@ -22,15 +22,16 @@ export const example = $root.example = (() => {
          * Properties of a SearchRequest.
          * @memberof example
          * @interface ISearchRequest
-         * @property {string} [query] SearchRequest query
-         * @property {number} [pageNumber] SearchRequest pageNumber
-         * @property {number} [resultPerPage] SearchRequest resultPerPage
+         * @property {string|null} [query] SearchRequest query
+         * @property {number|null} [pageNumber] SearchRequest pageNumber
+         * @property {number|null} [resultPerPage] SearchRequest resultPerPage
          */
 
         /**
          * Constructs a new SearchRequest.
          * @memberof example
          * @classdesc Represents a SearchRequest.
+         * @implements ISearchRequest
          * @constructor
          * @param {example.ISearchRequest=} [properties] Properties to set
          */
@@ -43,7 +44,7 @@ export const example = $root.example = (() => {
 
         /**
          * SearchRequest query.
-         * @member {string}query
+         * @member {string} query
          * @memberof example.SearchRequest
          * @instance
          */
@@ -51,7 +52,7 @@ export const example = $root.example = (() => {
 
         /**
          * SearchRequest pageNumber.
-         * @member {number}pageNumber
+         * @member {number} pageNumber
          * @memberof example.SearchRequest
          * @instance
          */
@@ -59,7 +60,7 @@ export const example = $root.example = (() => {
 
         /**
          * SearchRequest resultPerPage.
-         * @member {number}resultPerPage
+         * @member {number} resultPerPage
          * @memberof example.SearchRequest
          * @instance
          */
@@ -253,13 +254,14 @@ export const example = $root.example = (() => {
          * Properties of a SearchResponse.
          * @memberof example
          * @interface ISearchResponse
-         * @property {Array.<example.IResult>} [result] SearchResponse result
+         * @property {Array.<example.IResult>|null} [result] SearchResponse result
          */
 
         /**
          * Constructs a new SearchResponse.
          * @memberof example
          * @classdesc Represents a SearchResponse.
+         * @implements ISearchResponse
          * @constructor
          * @param {example.ISearchResponse=} [properties] Properties to set
          */
@@ -273,7 +275,7 @@ export const example = $root.example = (() => {
 
         /**
          * SearchResponse result.
-         * @member {Array.<example.IResult>}result
+         * @member {Array.<example.IResult>} result
          * @memberof example.SearchResponse
          * @instance
          */
@@ -460,14 +462,15 @@ export const example = $root.example = (() => {
          * Properties of a SearchError.
          * @memberof example
          * @interface ISearchError
-         * @property {string} [field] SearchError field
-         * @property {number} [errorCount] SearchError errorCount
+         * @property {string|null} [field] SearchError field
+         * @property {number|null} [errorCount] SearchError errorCount
          */
 
         /**
          * Constructs a new SearchError.
          * @memberof example
          * @classdesc Represents a SearchError.
+         * @implements ISearchError
          * @constructor
          * @param {example.ISearchError=} [properties] Properties to set
          */
@@ -480,7 +483,7 @@ export const example = $root.example = (() => {
 
         /**
          * SearchError field.
-         * @member {string}field
+         * @member {string} field
          * @memberof example.SearchError
          * @instance
          */
@@ -488,7 +491,7 @@ export const example = $root.example = (() => {
 
         /**
          * SearchError errorCount.
-         * @member {number}errorCount
+         * @member {number} errorCount
          * @memberof example.SearchError
          * @instance
          */
@@ -669,16 +672,17 @@ export const example = $root.example = (() => {
          * Properties of a Result.
          * @memberof example
          * @interface IResult
-         * @property {string} [url] Result url
-         * @property {string} [title] Result title
-         * @property {string} [snippets] Result snippets
-         * @property {number} [someSnakedName] Result someSnakedName
+         * @property {string|null} [url] Result url
+         * @property {string|null} [title] Result title
+         * @property {string|null} [snippets] Result snippets
+         * @property {number|null} [someSnakedName] Result someSnakedName
          */
 
         /**
          * Constructs a new Result.
          * @memberof example
          * @classdesc Represents a Result.
+         * @implements IResult
          * @constructor
          * @param {example.IResult=} [properties] Properties to set
          */
@@ -691,7 +695,7 @@ export const example = $root.example = (() => {
 
         /**
          * Result url.
-         * @member {string}url
+         * @member {string} url
          * @memberof example.Result
          * @instance
          */
@@ -699,7 +703,7 @@ export const example = $root.example = (() => {
 
         /**
          * Result title.
-         * @member {string}title
+         * @member {string} title
          * @memberof example.Result
          * @instance
          */
@@ -707,7 +711,7 @@ export const example = $root.example = (() => {
 
         /**
          * Result snippets.
-         * @member {string}snippets
+         * @member {string} snippets
          * @memberof example.Result
          * @instance
          */
@@ -715,7 +719,7 @@ export const example = $root.example = (() => {
 
         /**
          * Result someSnakedName.
-         * @member {number}someSnakedName
+         * @member {number} someSnakedName
          * @memberof example.Result
          * @instance
          */
@@ -959,7 +963,7 @@ export const example = $root.example = (() => {
 
         /**
          * Calls Search.
-         * @function .search
+         * @function search
          * @memberof example.SearchService
          * @instance
          * @param {example.ISearchRequest} request SearchRequest message or plain object
@@ -967,9 +971,9 @@ export const example = $root.example = (() => {
          * @returns {undefined}
          * @variation 1
          */
-        SearchService.prototype.search = function search(request, callback) {
+        Object.defineProperty(SearchService.prototype.search = function search(request, callback) {
             return this.rpcCall(search, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
-        };
+        }, "name", { value: "Search" });
 
         /**
          * Calls Search.
@@ -992,7 +996,7 @@ export const example = $root.example = (() => {
 
         /**
          * Calls SearchAlt.
-         * @function .searchAlt
+         * @function searchAlt
          * @memberof example.SearchService
          * @instance
          * @param {example.ISearchRequest} request SearchRequest message or plain object
@@ -1000,9 +1004,9 @@ export const example = $root.example = (() => {
          * @returns {undefined}
          * @variation 1
          */
-        SearchService.prototype.searchAlt = function searchAlt(request, callback) {
+        Object.defineProperty(SearchService.prototype.searchAlt = function searchAlt(request, callback) {
             return this.rpcCall(searchAlt, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
-        };
+        }, "name", { value: "SearchAlt" });
 
         /**
          * Calls SearchAlt.
@@ -1025,7 +1029,7 @@ export const example = $root.example = (() => {
 
         /**
          * Calls SearchReturnError.
-         * @function .searchReturnError
+         * @function searchReturnError
          * @memberof example.SearchService
          * @instance
          * @param {example.ISearchRequest} request SearchRequest message or plain object
@@ -1033,13 +1037,46 @@ export const example = $root.example = (() => {
          * @returns {undefined}
          * @variation 1
          */
-        SearchService.prototype.searchReturnError = function searchReturnError(request, callback) {
+        Object.defineProperty(SearchService.prototype.searchReturnError = function searchReturnError(request, callback) {
             return this.rpcCall(searchReturnError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
-        };
+        }, "name", { value: "SearchReturnError" });
 
         /**
          * Calls SearchReturnError.
          * @function searchReturnError
+         * @memberof example.SearchService
+         * @instance
+         * @param {example.ISearchRequest} request SearchRequest message or plain object
+         * @returns {Promise<example.SearchResponse>} Promise
+         * @variation 2
+         */
+
+        /**
+         * Callback as used by {@link example.SearchService#searchValidateError}.
+         * @memberof example.SearchService
+         * @typedef SearchValidateErrorCallback
+         * @type {function}
+         * @param {Error|null} error Error, if any
+         * @param {example.SearchResponse} [response] SearchResponse
+         */
+
+        /**
+         * Calls SearchValidateError.
+         * @function searchValidateError
+         * @memberof example.SearchService
+         * @instance
+         * @param {example.ISearchRequest} request SearchRequest message or plain object
+         * @param {example.SearchService.SearchValidateErrorCallback} callback Node-style callback called with the error, if any, and SearchResponse
+         * @returns {undefined}
+         * @variation 1
+         */
+        Object.defineProperty(SearchService.prototype.searchValidateError = function searchValidateError(request, callback) {
+            return this.rpcCall(searchValidateError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+        }, "name", { value: "SearchValidateError" });
+
+        /**
+         * Calls SearchValidateError.
+         * @function searchValidateError
          * @memberof example.SearchService
          * @instance
          * @param {example.ISearchRequest} request SearchRequest message or plain object
@@ -1058,7 +1095,7 @@ export const example = $root.example = (() => {
 
         /**
          * Calls SearchReturnNil.
-         * @function .searchReturnNil
+         * @function searchReturnNil
          * @memberof example.SearchService
          * @instance
          * @param {example.ISearchRequest} request SearchRequest message or plain object
@@ -1066,9 +1103,9 @@ export const example = $root.example = (() => {
          * @returns {undefined}
          * @variation 1
          */
-        SearchService.prototype.searchReturnNil = function searchReturnNil(request, callback) {
+        Object.defineProperty(SearchService.prototype.searchReturnNil = function searchReturnNil(request, callback) {
             return this.rpcCall(searchReturnNil, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
-        };
+        }, "name", { value: "SearchReturnNil" });
 
         /**
          * Calls SearchReturnNil.
@@ -1091,7 +1128,7 @@ export const example = $root.example = (() => {
 
         /**
          * Calls SearchWithUnexpectedError.
-         * @function .searchWithUnexpectedError
+         * @function searchWithUnexpectedError
          * @memberof example.SearchService
          * @instance
          * @param {example.ISearchRequest} request SearchRequest message or plain object
@@ -1099,9 +1136,9 @@ export const example = $root.example = (() => {
          * @returns {undefined}
          * @variation 1
          */
-        SearchService.prototype.searchWithUnexpectedError = function searchWithUnexpectedError(request, callback) {
+        Object.defineProperty(SearchService.prototype.searchWithUnexpectedError = function searchWithUnexpectedError(request, callback) {
             return this.rpcCall(searchWithUnexpectedError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
-        };
+        }, "name", { value: "SearchWithUnexpectedError" });
 
         /**
          * Calls SearchWithUnexpectedError.
@@ -1122,13 +1159,14 @@ export const example = $root.example = (() => {
          * Properties of an AccountInfo.
          * @memberof example
          * @interface IAccountInfo
-         * @property {string} [name] AccountInfo name
+         * @property {string|null} [name] AccountInfo name
          */
 
         /**
          * Constructs a new AccountInfo.
          * @memberof example
          * @classdesc Represents an AccountInfo.
+         * @implements IAccountInfo
          * @constructor
          * @param {example.IAccountInfo=} [properties] Properties to set
          */
@@ -1141,7 +1179,7 @@ export const example = $root.example = (() => {
 
         /**
          * AccountInfo name.
-         * @member {string}name
+         * @member {string} name
          * @memberof example.AccountInfo
          * @instance
          */
@@ -1308,13 +1346,14 @@ export const example = $root.example = (() => {
          * Properties of a GetAccountInfoParams.
          * @memberof example
          * @interface IGetAccountInfoParams
-         * @property {string} [id] GetAccountInfoParams id
+         * @property {string|null} [id] GetAccountInfoParams id
          */
 
         /**
          * Constructs a new GetAccountInfoParams.
          * @memberof example
          * @classdesc Represents a GetAccountInfoParams.
+         * @implements IGetAccountInfoParams
          * @constructor
          * @param {example.IGetAccountInfoParams=} [properties] Properties to set
          */
@@ -1327,7 +1366,7 @@ export const example = $root.example = (() => {
 
         /**
          * GetAccountInfoParams id.
-         * @member {string}id
+         * @member {string} id
          * @memberof example.GetAccountInfoParams
          * @instance
          */
@@ -1488,6 +1527,403 @@ export const example = $root.example = (() => {
         return GetAccountInfoParams;
     })();
 
+    example.LoginParams = (function() {
+
+        /**
+         * Properties of a LoginParams.
+         * @memberof example
+         * @interface ILoginParams
+         * @property {string|null} [username] LoginParams username
+         * @property {string|null} [password] LoginParams password
+         */
+
+        /**
+         * Constructs a new LoginParams.
+         * @memberof example
+         * @classdesc Represents a LoginParams.
+         * @implements ILoginParams
+         * @constructor
+         * @param {example.ILoginParams=} [properties] Properties to set
+         */
+        function LoginParams(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * LoginParams username.
+         * @member {string} username
+         * @memberof example.LoginParams
+         * @instance
+         */
+        LoginParams.prototype.username = "";
+
+        /**
+         * LoginParams password.
+         * @member {string} password
+         * @memberof example.LoginParams
+         * @instance
+         */
+        LoginParams.prototype.password = "";
+
+        /**
+         * Creates a new LoginParams instance using the specified properties.
+         * @function create
+         * @memberof example.LoginParams
+         * @static
+         * @param {example.ILoginParams=} [properties] Properties to set
+         * @returns {example.LoginParams} LoginParams instance
+         */
+        LoginParams.create = function create(properties) {
+            return new LoginParams(properties);
+        };
+
+        /**
+         * Encodes the specified LoginParams message. Does not implicitly {@link example.LoginParams.verify|verify} messages.
+         * @function encode
+         * @memberof example.LoginParams
+         * @static
+         * @param {example.ILoginParams} message LoginParams message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LoginParams.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.username != null && message.hasOwnProperty("username"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.username);
+            if (message.password != null && message.hasOwnProperty("password"))
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.password);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified LoginParams message, length delimited. Does not implicitly {@link example.LoginParams.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof example.LoginParams
+         * @static
+         * @param {example.ILoginParams} message LoginParams message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LoginParams.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a LoginParams message from the specified reader or buffer.
+         * @function decode
+         * @memberof example.LoginParams
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {example.LoginParams} LoginParams
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LoginParams.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.LoginParams();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.username = reader.string();
+                    break;
+                case 2:
+                    message.password = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a LoginParams message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof example.LoginParams
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {example.LoginParams} LoginParams
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LoginParams.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a LoginParams message.
+         * @function verify
+         * @memberof example.LoginParams
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        LoginParams.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.username != null && message.hasOwnProperty("username"))
+                if (!$util.isString(message.username))
+                    return "username: string expected";
+            if (message.password != null && message.hasOwnProperty("password"))
+                if (!$util.isString(message.password))
+                    return "password: string expected";
+            return null;
+        };
+
+        /**
+         * Creates a LoginParams message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof example.LoginParams
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {example.LoginParams} LoginParams
+         */
+        LoginParams.fromObject = function fromObject(object) {
+            if (object instanceof $root.example.LoginParams)
+                return object;
+            let message = new $root.example.LoginParams();
+            if (object.username != null)
+                message.username = String(object.username);
+            if (object.password != null)
+                message.password = String(object.password);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a LoginParams message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof example.LoginParams
+         * @static
+         * @param {example.LoginParams} message LoginParams
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        LoginParams.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults) {
+                object.username = "";
+                object.password = "";
+            }
+            if (message.username != null && message.hasOwnProperty("username"))
+                object.username = message.username;
+            if (message.password != null && message.hasOwnProperty("password"))
+                object.password = message.password;
+            return object;
+        };
+
+        /**
+         * Converts this LoginParams to JSON.
+         * @function toJSON
+         * @memberof example.LoginParams
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        LoginParams.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return LoginParams;
+    })();
+
+    example.LoginResult = (function() {
+
+        /**
+         * Properties of a LoginResult.
+         * @memberof example
+         * @interface ILoginResult
+         * @property {string|null} [status] LoginResult status
+         */
+
+        /**
+         * Constructs a new LoginResult.
+         * @memberof example
+         * @classdesc Represents a LoginResult.
+         * @implements ILoginResult
+         * @constructor
+         * @param {example.ILoginResult=} [properties] Properties to set
+         */
+        function LoginResult(properties) {
+            if (properties)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * LoginResult status.
+         * @member {string} status
+         * @memberof example.LoginResult
+         * @instance
+         */
+        LoginResult.prototype.status = "";
+
+        /**
+         * Creates a new LoginResult instance using the specified properties.
+         * @function create
+         * @memberof example.LoginResult
+         * @static
+         * @param {example.ILoginResult=} [properties] Properties to set
+         * @returns {example.LoginResult} LoginResult instance
+         */
+        LoginResult.create = function create(properties) {
+            return new LoginResult(properties);
+        };
+
+        /**
+         * Encodes the specified LoginResult message. Does not implicitly {@link example.LoginResult.verify|verify} messages.
+         * @function encode
+         * @memberof example.LoginResult
+         * @static
+         * @param {example.ILoginResult} message LoginResult message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LoginResult.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.status != null && message.hasOwnProperty("status"))
+                writer.uint32(/* id 1, wireType 2 =*/10).string(message.status);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified LoginResult message, length delimited. Does not implicitly {@link example.LoginResult.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof example.LoginResult
+         * @static
+         * @param {example.ILoginResult} message LoginResult message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        LoginResult.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a LoginResult message from the specified reader or buffer.
+         * @function decode
+         * @memberof example.LoginResult
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {example.LoginResult} LoginResult
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LoginResult.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.LoginResult();
+            while (reader.pos < end) {
+                let tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.status = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes a LoginResult message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof example.LoginResult
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {example.LoginResult} LoginResult
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        LoginResult.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a LoginResult message.
+         * @function verify
+         * @memberof example.LoginResult
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        LoginResult.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.status != null && message.hasOwnProperty("status"))
+                if (!$util.isString(message.status))
+                    return "status: string expected";
+            return null;
+        };
+
+        /**
+         * Creates a LoginResult message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof example.LoginResult
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {example.LoginResult} LoginResult
+         */
+        LoginResult.fromObject = function fromObject(object) {
+            if (object instanceof $root.example.LoginResult)
+                return object;
+            let message = new $root.example.LoginResult();
+            if (object.status != null)
+                message.status = String(object.status);
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a LoginResult message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof example.LoginResult
+         * @static
+         * @param {example.LoginResult} message LoginResult
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        LoginResult.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            let object = {};
+            if (options.defaults)
+                object.status = "";
+            if (message.status != null && message.hasOwnProperty("status"))
+                object.status = message.status;
+            return object;
+        };
+
+        /**
+         * Converts this LoginResult to JSON.
+         * @function toJSON
+         * @memberof example.LoginResult
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        LoginResult.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return LoginResult;
+    })();
+
     example.AccountService = (function() {
 
         /**
@@ -1531,7 +1967,7 @@ export const example = $root.example = (() => {
 
         /**
          * Calls GetAccountInfo.
-         * @function .getAccountInfo
+         * @function getAccountInfo
          * @memberof example.AccountService
          * @instance
          * @param {example.IGetAccountInfoParams} request GetAccountInfoParams message or plain object
@@ -1539,9 +1975,9 @@ export const example = $root.example = (() => {
          * @returns {undefined}
          * @variation 1
          */
-        AccountService.prototype.getAccountInfo = function getAccountInfo(request, callback) {
+        Object.defineProperty(AccountService.prototype.getAccountInfo = function getAccountInfo(request, callback) {
             return this.rpcCall(getAccountInfo, $root.example.GetAccountInfoParams, $root.example.AccountInfo, request, callback);
-        };
+        }, "name", { value: "GetAccountInfo" });
 
         /**
          * Calls GetAccountInfo.
@@ -1554,6 +1990,74 @@ export const example = $root.example = (() => {
          */
 
         return AccountService;
+    })();
+
+    example.AuthService = (function() {
+
+        /**
+         * Constructs a new AuthService service.
+         * @memberof example
+         * @classdesc Represents an AuthService
+         * @extends $protobuf.rpc.Service
+         * @constructor
+         * @param {$protobuf.RPCImpl} rpcImpl RPC implementation
+         * @param {boolean} [requestDelimited=false] Whether requests are length-delimited
+         * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
+         */
+        function AuthService(rpcImpl, requestDelimited, responseDelimited) {
+            $protobuf.rpc.Service.call(this, rpcImpl, requestDelimited, responseDelimited);
+        }
+
+        (AuthService.prototype = Object.create($protobuf.rpc.Service.prototype)).constructor = AuthService;
+
+        /**
+         * Creates new AuthService service using the specified rpc implementation.
+         * @function create
+         * @memberof example.AuthService
+         * @static
+         * @param {$protobuf.RPCImpl} rpcImpl RPC implementation
+         * @param {boolean} [requestDelimited=false] Whether requests are length-delimited
+         * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
+         * @returns {AuthService} RPC service. Useful where requests and/or responses are streamed.
+         */
+        AuthService.create = function create(rpcImpl, requestDelimited, responseDelimited) {
+            return new this(rpcImpl, requestDelimited, responseDelimited);
+        };
+
+        /**
+         * Callback as used by {@link example.AuthService#login}.
+         * @memberof example.AuthService
+         * @typedef LoginCallback
+         * @type {function}
+         * @param {Error|null} error Error, if any
+         * @param {example.LoginResult} [response] LoginResult
+         */
+
+        /**
+         * Calls Login.
+         * @function login
+         * @memberof example.AuthService
+         * @instance
+         * @param {example.ILoginParams} request LoginParams message or plain object
+         * @param {example.AuthService.LoginCallback} callback Node-style callback called with the error, if any, and LoginResult
+         * @returns {undefined}
+         * @variation 1
+         */
+        Object.defineProperty(AuthService.prototype.login = function login(request, callback) {
+            return this.rpcCall(login, $root.example.LoginParams, $root.example.LoginResult, request, callback);
+        }, "name", { value: "Login" });
+
+        /**
+         * Calls Login.
+         * @function login
+         * @memberof example.AuthService
+         * @instance
+         * @param {example.ILoginParams} request LoginParams message or plain object
+         * @returns {Promise<example.LoginResult>} Promise
+         * @variation 2
+         */
+
+        return AuthService;
     })();
 
     return example;
