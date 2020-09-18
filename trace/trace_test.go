@@ -99,7 +99,7 @@ var testInterceptorCases = []testInterceptorCase{
 			}, nil
 		},
 
-		exceptLog: `level=info full_method=/example.SearchService/Search request.Query=query request.PageNumber=1 request.ResultPerPage=10 response.[0]="<err no such field.>" response.Result.[0]="url:\"/url\" title:\"tile\" snippets:\"snippets\" "`,
+		exceptLog: `level=info full_method=/example.SearchService/Search request.Query=query request.PageNumber=1 request.ResultPerPage=10 response.[0]="<err no such field>" response.Result.[0]="url:\"/url\" title:\"tile\" snippets:\"snippets\" "`,
 	},
 	{
 		name: "request return normal error",
