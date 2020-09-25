@@ -18,3 +18,6 @@ runjs: harness.ts testproto.d.ts testproto.js
 
 rungo: test.pb.go
 	go run examplemain/main.go
+
+installgo:
+	go install examplemain/main.go
