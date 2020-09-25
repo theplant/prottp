@@ -90,11 +90,11 @@ export const example = $root.example = (() => {
         SearchRequest.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.query != null && message.hasOwnProperty("query"))
+            if (message.query != null && Object.hasOwnProperty.call(message, "query"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.query);
-            if (message.pageNumber != null && message.hasOwnProperty("pageNumber"))
+            if (message.pageNumber != null && Object.hasOwnProperty.call(message, "pageNumber"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.pageNumber);
-            if (message.resultPerPage != null && message.hasOwnProperty("resultPerPage"))
+            if (message.resultPerPage != null && Object.hasOwnProperty.call(message, "resultPerPage"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.resultPerPage);
             return writer;
         };
@@ -521,9 +521,9 @@ export const example = $root.example = (() => {
         SearchError.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.field != null && message.hasOwnProperty("field"))
+            if (message.field != null && Object.hasOwnProperty.call(message, "field"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.field);
-            if (message.errorCount != null && message.hasOwnProperty("errorCount"))
+            if (message.errorCount != null && Object.hasOwnProperty.call(message, "errorCount"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.errorCount);
             return writer;
         };
@@ -749,13 +749,13 @@ export const example = $root.example = (() => {
         Result.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.url != null && message.hasOwnProperty("url"))
+            if (message.url != null && Object.hasOwnProperty.call(message, "url"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.url);
-            if (message.title != null && message.hasOwnProperty("title"))
+            if (message.title != null && Object.hasOwnProperty.call(message, "title"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.title);
-            if (message.snippets != null && message.hasOwnProperty("snippets"))
+            if (message.snippets != null && Object.hasOwnProperty.call(message, "snippets"))
                 writer.uint32(/* id 3, wireType 2 =*/26).string(message.snippets);
-            if (message.someSnakedName != null && message.hasOwnProperty("someSnakedName"))
+            if (message.someSnakedName != null && Object.hasOwnProperty.call(message, "someSnakedName"))
                 writer.uint32(/* id 4, wireType 0 =*/32).int32(message.someSnakedName);
             return writer;
         };
@@ -1209,7 +1209,7 @@ export const example = $root.example = (() => {
         AccountInfo.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.name != null && message.hasOwnProperty("name"))
+            if (message.name != null && Object.hasOwnProperty.call(message, "name"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
             return writer;
         };
@@ -1396,7 +1396,7 @@ export const example = $root.example = (() => {
         GetAccountInfoParams.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
             return writer;
         };
@@ -1592,9 +1592,9 @@ export const example = $root.example = (() => {
         LoginParams.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.username != null && message.hasOwnProperty("username"))
+            if (message.username != null && Object.hasOwnProperty.call(message, "username"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.username);
-            if (message.password != null && message.hasOwnProperty("password"))
+            if (message.password != null && Object.hasOwnProperty.call(message, "password"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.password);
             return writer;
         };
@@ -1793,7 +1793,7 @@ export const example = $root.example = (() => {
         LoginResult.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.status);
             return writer;
         };
