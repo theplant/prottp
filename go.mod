@@ -10,14 +10,13 @@ require (
 	github.com/theplant/testingutils v0.0.0-20190603093022-26d8b4d95c61
 	github.com/theplant/validator v0.0.0-20200421071236-b1bb50df4082
 	golang.org/x/net v0.7.0
-	google.golang.org/grpc v1.40.0
+	google.golang.org/grpc v1.53.0
 )
 
 require (
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
-	github.com/google/go-cmp v0.5.7 // indirect
-	github.com/google/uuid v1.1.2 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jjeffery/errors v1.0.3 // indirect
@@ -28,6 +27,6 @@ require (
 	github.com/rs/cors v1.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
-	google.golang.org/genproto v0.0.0-20210917145530-b395a37504d4 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )
