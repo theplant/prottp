@@ -4,13 +4,13 @@ go 1.17
 
 require (
 	github.com/go-kit/kit v0.12.1-0.20220826005032-a7ba4fa4e289
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/sunfmin/reflectutils v0.0.0-20190925073614-f129c4f8ea2e
 	github.com/theplant/appkit v0.0.0-20200710051107-b5c999e99992
 	github.com/theplant/testingutils v0.0.0-20190603093022-26d8b4d95c61
 	github.com/theplant/validator v0.0.0-20200421071236-b1bb50df4082
 	golang.org/x/net v0.17.0
-	google.golang.org/grpc v1.53.0
+	google.golang.org/grpc v1.56.3
 )
 
 require (
@@ -27,6 +27,6 @@ require (
 	github.com/rs/cors v1.7.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
-	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 )
