@@ -9,7 +9,7 @@ require (
 	github.com/theplant/appkit v0.0.0-20200710051107-b5c999e99992
 	github.com/theplant/testingutils v0.0.0-20190603093022-26d8b4d95c61
 	github.com/theplant/validator v0.0.0-20200421071236-b1bb50df4082
-	golang.org/x/net v0.17.0
+	golang.org/x/net v0.23.0
 	google.golang.org/grpc v1.56.3
 )
 
@@ -25,8 +25,8 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rs/cors v1.7.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
