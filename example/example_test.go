@@ -78,6 +78,27 @@ Content-Type: application/x.prottp
 	},
 
 	{
+        Name:   "test request proto, response proto normal",
+        URL:    "/example.SearchService/Search",
+        Accept: "application/proto",
+        PBReqBody: &example.SearchRequest{
+            Query:         "query string protobuf",
+            PageNumber:    2,
+            ResultPerPage: 10,
+        },
+        ExpectedPBResBody: &example.SearchResponse{
+            Result: []*example.Result{
+                {Url: "query string protobuf", SomeSnakedName: 2},
+            },
+        },
+        ExpectedHeadersDump: `HTTP/1.1 200 OK
+Content-Length: 27
+Content-Type: application/proto
+
+`,
+    },
+
+	{
 		Name:   "test request json, response x.prottp normal",
 		URL:    "/example.SearchService/Search",
 		Accept: "application/x.prottp, application/json;q=0.9, */*;q=0.8",
@@ -97,6 +118,27 @@ Content-Type: application/x.prottp
 
 `,
 	},
+
+    {
+        Name:   "test request json, response proto normal",
+        URL:    "/example.SearchService/Search",
+        Accept: "application/proto, application/json;q=0.9, */*;q=0.8",
+        JSONReqBody: `{
+            "query": "query string protobuf",
+            "page_number": 1,
+            "result_per_page": 10
+        }`,
+        ExpectedPBResBody: &example.SearchResponse{
+            Result: []*example.Result{
+                {Url: "query string protobuf", SomeSnakedName: 2},
+            },
+        },
+        ExpectedHeadersDump: `HTTP/1.1 200 OK
+Content-Length: 27
+Content-Type: application/proto
+
+`,
+    },
 
 	{
 		Name:   "test request x.prottp, response json normal",
