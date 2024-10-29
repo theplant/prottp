@@ -117,7 +117,7 @@ func shouldReturnJSON(r *http.Request) bool {
 	if len(acceptString) == 0 {
 		return isContentTypeJSON(r)
 	}
-	
+
 	jsonIndex := strings.Index(acceptString, jsonContentType)
 	xprottpIndex := strings.Index(acceptString, xprottpContentType)
 	protoIndex := strings.Index(acceptString, protoContentType)
