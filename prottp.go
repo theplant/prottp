@@ -102,6 +102,7 @@ var unmarshaler = jsonpb.Unmarshaler{
 
 const jsonContentType = "application/json"
 const xprottpContentType = "application/x.prottp"
+const protoContentType = "application/proto"
 
 func isMimeTypeJSON(contentType string) bool {
 	return strings.Index(strings.ToLower(contentType), jsonContentType) >= 0
@@ -116,10 +117,12 @@ func shouldReturnJSON(r *http.Request) bool {
 	if len(acceptString) == 0 {
 		return isContentTypeJSON(r)
 	}
+
 	jsonIndex := strings.Index(acceptString, jsonContentType)
 	xprottpIndex := strings.Index(acceptString, xprottpContentType)
+	protoIndex := strings.Index(acceptString, protoContentType)
 
-	if jsonIndex < 0 && xprottpIndex < 0 {
+	if jsonIndex < 0 && xprottpIndex < 0 && protoIndex < 0 {
 		return isContentTypeJSON(r)
 	}
 
@@ -129,12 +132,11 @@ func shouldReturnJSON(r *http.Request) bool {
 	if xprottpIndex < 0 {
 		xprottpIndex = 10000
 	}
-
-	if jsonIndex < xprottpIndex {
-		return true
+	if protoIndex < 0 {
+		protoIndex = 10001
 	}
 
-	return false
+	return jsonIndex < xprottpIndex && jsonIndex < protoIndex
 }
 
 func wrapMethod(service interface{}, m grpc.MethodDesc, interceptor grpc.UnaryServerInterceptor) http.Handler {
@@ -200,6 +202,8 @@ func WriteMessage(statusCode int, msg proto.Message, w http.ResponseWriter, r *h
 		contentType := xprottpContentType
 		if isJSON {
 			contentType = jsonContentType
+		} else if strings.Index(strings.ToLower(r.Header.Get("Accept")), protoContentType) >= 0 {
+			contentType = protoContentType
 		}
 		w.Header().Set("Content-Type", contentType)
 	}
