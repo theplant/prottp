@@ -7,17 +7,8 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
 
-    env:
-      GOPATH: ${{ github.workspace }}
-
-    defaults:
-      run:
-        working-directory: src/github.com/theplant/prottp
-
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: src/github.com/theplant/prottp
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -42,19 +33,19 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            ${{ github.workspace }}/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/theplant/prottp/go.sum') }}
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ hashFiles('src/github.com/theplant/prottp/go.mod') }}
+            ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
             ${{ runner.os }}-go-
 
       - name: Cache yarn dependencies
         uses: actions/cache@v4
         with:
-          path: src/github.com/theplant/prottp/example/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('src/github.com/theplant/prottp/example/yarn.lock') }}
+          path: example/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('example/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('src/github.com/theplant/prottp/example/package.json') }}
+            ${{ runner.os }}-yarn-${{ hashFiles('example/package.json') }}
             ${{ runner.os }}-yarn-
 
       - name: Install Go dependencies
