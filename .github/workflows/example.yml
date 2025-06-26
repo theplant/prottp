@@ -1,0 +1,136 @@
+name: CI / example
+
+on:
+  push:
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Protocol Buffers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+            ${{ runner.os }}-go-
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: example/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('example/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ hashFiles('example/package.json') }}
+            ${{ runner.os }}-yarn-
+
+      - name: Install Go dependencies
+        run: go mod download
+
+      - name: Install Go protobuf plugins
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.2
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+
+      - name: Install yarn dependencies
+        run: |
+          cd example
+          yarn install --frozen-lockfile
+
+      - name: Generate protobuf files
+        run: |
+          cd example
+          make test.pb.go
+
+      - name: Start Go server in background
+        run: |
+          cd example
+          make rungo &
+          echo $! > server.pid
+          echo "Started server with PID: $(cat server.pid)"
+
+      - name: Wait for server to be ready
+        run: |
+          cd example
+          echo "Waiting for server to start..."
+          for i in {1..30}; do
+            if ss -tuln | grep -q :8080; then
+              echo "Server is ready!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Server failed to start within 30 seconds"
+              if [ -f server.pid ]; then
+                echo "Server PID: $(cat server.pid)"
+                ps aux | grep $(cat server.pid) || echo "Server process not found"
+              fi
+              exit 1
+            fi
+            echo "Attempt $i/30: Server not ready yet, waiting..."
+            sleep 1
+          done
+
+      - name: Run TypeScript client test
+        run: |
+          cd example
+          echo "Running TypeScript client tests..."
+          timeout 60 make runjs
+
+      - name: Show server logs (if failure)
+        if: failure()
+        run: |
+          cd example
+          if [ -f server.pid ]; then
+            echo "Server PID: $(cat server.pid)"
+            ps aux | grep $(cat server.pid) || echo "Server process not found"
+          fi
+          echo "Checking if port 8080 is still in use:"
+          ss -tuln | grep :8080 || echo "Port 8080 not in use"
+
+      - name: Stop Go server
+        run: |
+          cd example
+          if [ -f server.pid ]; then
+            PID=$(cat server.pid)
+            echo "Stopping server with PID: $PID"
+            kill $PID 2>/dev/null || echo "Process $PID already stopped"
+            # Wait for graceful shutdown
+            for i in {1..10}; do
+              if ! kill -0 $PID 2>/dev/null; then
+                echo "Server stopped gracefully"
+                break
+              fi
+              sleep 1
+            done
+            # Force kill if still running
+            kill -9 $PID 2>/dev/null || echo "Process $PID already stopped"
+            rm -f server.pid
+          fi
+          # Kill any remaining processes on port 8080
+          pkill -f "go run examplemain/main.go" || echo "No remaining processes found"
+          echo "Cleanup completed"
+        if: always()
