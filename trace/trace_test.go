@@ -194,7 +194,7 @@ var testInterceptorCases = []testInterceptorCase{
 			panic(errors.New("system error"))
 		},
 
-		exceptLog:  `github.com/theplant/prottp/trace/trace_test.go:194`,
+		exceptLog:  `/prottp/trace/trace_test.go:194`,
 		runtimeErr: "system error",
 	},
 
@@ -219,7 +219,7 @@ var testInterceptorCases = []testInterceptorCase{
 			panic("must nil point in above")
 		},
 
-		exceptLog:  `github.com/theplant/prottp/trace/trace_test.go:218`,
+		exceptLog:  `/prottp/trace/trace_test.go:218`,
 		runtimeErr: "runtime error: invalid memory address or nil pointer dereference",
 	},
 
