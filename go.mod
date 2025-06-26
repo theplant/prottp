@@ -1,6 +1,8 @@
 module github.com/theplant/prottp
 
-go 1.17
+go 1.23
+
+toolchain go1.24.4
 
 require (
 	github.com/go-kit/kit v0.12.1-0.20220826005032-a7ba4fa4e289
@@ -16,6 +18,7 @@ require (
 require (
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
