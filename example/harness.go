@@ -1,6 +1,7 @@
 package example
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,13 +13,14 @@ import (
 	"github.com/theplant/prottp"
 	"github.com/theplant/prottp/trace"
 	vproto "github.com/theplant/validator/proto"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
 var _ SearchServiceServer = (*search)(nil)
 
-type search struct{}
+type search struct {
+	UnimplementedSearchServiceServer
+}
 
 func (s search) Search(ctx context.Context, r *SearchRequest) (*SearchResponse, error) {
 	fmt.Println("SEARCH", r)
@@ -60,10 +62,12 @@ func (s search) SearchWithUnexpectedError(ctx context.Context, r *SearchRequest)
 }
 
 func (s search) Description() grpc.ServiceDesc {
-	return _SearchService_serviceDesc
+	return SearchService_ServiceDesc
 }
 
-type account struct{}
+type account struct {
+	UnimplementedAccountServiceServer
+}
 
 func (s account) GetAccountInfo(ctx context.Context, r *GetAccountInfoParams) (*AccountInfo, error) {
 	fmt.Println("AccountID", r)
@@ -73,10 +77,12 @@ func (s account) GetAccountInfo(ctx context.Context, r *GetAccountInfoParams) (*
 }
 
 func (s account) Description() grpc.ServiceDesc {
-	return _AccountService_serviceDesc
+	return AccountService_ServiceDesc
 }
 
-type auth struct{}
+type auth struct {
+	UnimplementedAuthServiceServer
+}
 
 func (s auth) Login(ctx context.Context, r *LoginParams) (*LoginResult, error) {
 	h := server.ForceHeader(ctx)
@@ -86,7 +92,7 @@ func (s auth) Login(ctx context.Context, r *LoginParams) (*LoginResult, error) {
 }
 
 func (s auth) Description() grpc.ServiceDesc {
-	return _AuthService_serviceDesc
+	return AuthService_ServiceDesc
 }
 
 func mustLogin(in http.Handler) http.Handler {
