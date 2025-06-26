@@ -7,8 +7,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      GOPATH: ${{ github.workspace }}
+
+    defaults:
+      run:
+        working-directory: src/github.com/theplant/prottp
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: src/github.com/theplant/prottp
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -20,10 +29,10 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+            ${{ github.workspace }}/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/theplant/prottp/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+            ${{ runner.os }}-go-${{ hashFiles('src/github.com/theplant/prottp/go.mod') }}
             ${{ runner.os }}-go-
 
       - name: Download dependencies
