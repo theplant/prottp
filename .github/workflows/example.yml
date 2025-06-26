@@ -34,9 +34,8 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
             ${{ runner.os }}-go-
 
       - name: Cache yarn dependencies
@@ -45,7 +44,6 @@ jobs:
           path: example/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('example/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('example/package.json') }}
             ${{ runner.os }}-yarn-
 
       - name: Install Go dependencies
