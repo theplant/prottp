@@ -3,7 +3,7 @@ package prottp
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -154,7 +154,7 @@ func wrapMethod(service interface{}, m grpc.MethodDesc, interceptor grpc.UnarySe
 			}
 
 			var buff []byte
-			buff, err = ioutil.ReadAll(r.Body)
+			buff, err = io.ReadAll(r.Body)
 			if err != nil {
 				return
 			}
