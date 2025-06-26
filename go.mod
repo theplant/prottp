@@ -1,6 +1,8 @@
 module github.com/theplant/prottp
 
-go 1.17
+go 1.23.0
+
+toolchain go1.24.4
 
 require (
 	github.com/go-kit/kit v0.12.1-0.20220826005032-a7ba4fa4e289
