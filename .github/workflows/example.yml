@@ -27,35 +27,33 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Get current date for apt cache
-        id: date
-        run: echo "date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
-
-      - name: Cache apt packages
+      - name: Cache protoc binary
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.apt-cache
-          key: ${{ runner.os }}-apt-protobuf-${{ steps.date.outputs.date }}
+          path: ~/.local/bin
+          key: ${{ runner.os }}-protoc-21.12
           restore-keys: |
-            ${{ runner.os }}-apt-protobuf-
+            ${{ runner.os }}-protoc-
 
       - name: Install Protocol Buffers
         run: |
-          # Create cache directory
-          mkdir -p ~/.apt-cache
-
-          # Check if protoc is already cached
-          if [ -f ~/.apt-cache/protoc ]; then
-            echo "Using cached protoc"
-            sudo cp ~/.apt-cache/protoc /usr/local/bin/protoc
-            sudo chmod +x /usr/local/bin/protoc
+          if ! command -v protoc &> /dev/null; then
+            echo "Installing protoc..."
+            PROTOC_VERSION="21.12"
+            PROTOC_ZIP="protoc-${PROTOC_VERSION}-linux-x86_64.zip"
+            
+            # Create directories
+            mkdir -p ~/.local/bin
+            
+            # Download and extract
+            curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP}"
+            unzip -o "$PROTOC_ZIP" -d ~/.local
+            rm "$PROTOC_ZIP"
+            
+            # Add to PATH for current session
+            echo "$HOME/.local/bin" >> $GITHUB_PATH
           else
-            echo "Installing protoc and caching it"
-            sudo apt-get update
-            sudo apt-get install -y protobuf-compiler
-            # Cache the binary
-            cp /usr/bin/protoc ~/.apt-cache/protoc
+            echo "protoc already installed"
           fi
 
           # Verify installation
