@@ -99,7 +99,7 @@ var testInterceptorCases = []testInterceptorCase{
 			}, nil
 		},
 
-		exceptLog: `level=info full_method=/example.SearchService/Search request.Query=query request.PageNumber=1 request.ResultPerPage=10 response.[0]="<err no such field>" response.Result.[0]="url:\"/url\"  title:\"tile\"  snippets:\"snippets\""`,
+		exceptLog: `level=info full_method=/example.SearchService/Search request.Query=query request.PageNumber=1 request.ResultPerPage=10 response.[0]="<err no such field>" response.Result.[0]="url:\"/url\" title:\"tile\" snippets:\"snippets\""`,
 	},
 	{
 		name: "request return normal error",
@@ -172,7 +172,7 @@ var testInterceptorCases = []testInterceptorCase{
 			}, errors.New("an inner error")
 		},
 
-		exceptLog: `level=error full_method=/example.SearchService/Search request.Query=query request.PageNumber=0 request.ResultPerPage=0 response.Result="[url:\"/url\"  title:\"tile\"  snippets:\"snippets\"]" err="an inner error"`,
+		exceptLog: `level=error full_method=/example.SearchService/Search request.Query=query request.PageNumber=0 request.ResultPerPage=0 response.Result="[url:\"/url\" title:\"tile\" snippets:\"snippets\"]" err="an inner error"`,
 	},
 
 	{
@@ -194,7 +194,7 @@ var testInterceptorCases = []testInterceptorCase{
 			panic(errors.New("system error"))
 		},
 
-		exceptLog:  `github.com/theplant/prottp/trace/trace_test.go:194`,
+		exceptLog:  `/prottp/trace/trace_test.go:194`,
 		runtimeErr: "system error",
 	},
 
@@ -219,7 +219,7 @@ var testInterceptorCases = []testInterceptorCase{
 			panic("must nil point in above")
 		},
 
-		exceptLog:  `github.com/theplant/prottp/trace/trace_test.go:218`,
+		exceptLog:  `/prottp/trace/trace_test.go:218`,
 		runtimeErr: "runtime error: invalid memory address or nil pointer dereference",
 	},
 
