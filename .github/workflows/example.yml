@@ -14,7 +14,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
-          cache: true
+          cache: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -34,71 +34,10 @@ jobs:
           cd example
           yarn install --frozen-lockfile
 
-      - name: Start Go server in background
+      - name: Run example
         run: |
           cd example
           make rungo &
-          echo $! > server.pid
-          echo "Started server with PID: $(cat server.pid)"
-
-      - name: Wait for server to be ready
-        run: |
-          cd example
-          echo "Waiting for server to start..."
-          for i in {1..30}; do
-            if ss -tuln | grep -q :8080; then
-              echo "Server is ready!"
-              break
-            fi
-            if [ $i -eq 30 ]; then
-              echo "Server failed to start within 30 seconds"
-              if [ -f server.pid ]; then
-                echo "Server PID: $(cat server.pid)"
-                ps aux | grep $(cat server.pid) || echo "Server process not found"
-              fi
-              exit 1
-            fi
-            echo "Attempt $i/30: Server not ready yet, waiting..."
-            sleep 1
-          done
-
-      - name: Run TypeScript client test
-        run: |
-          cd example
-          echo "Running TypeScript client tests..."
-          timeout 60 make runjs
-
-      - name: Show server logs (if failure)
-        if: failure()
-        run: |
-          cd example
-          if [ -f server.pid ]; then
-            echo "Server PID: $(cat server.pid)"
-            ps aux | grep $(cat server.pid) || echo "Server process not found"
-          fi
-          echo "Checking if port 8080 is still in use:"
-          ss -tuln | grep :8080 || echo "Port 8080 not in use"
-
-      - name: Stop Go server
-        run: |
-          cd example
-          if [ -f server.pid ]; then
-            PID=$(cat server.pid)
-            echo "Stopping server with PID: $PID"
-            kill $PID 2>/dev/null || echo "Process $PID already stopped"
-            # Wait for graceful shutdown
-            for i in {1..10}; do
-              if ! kill -0 $PID 2>/dev/null; then
-                echo "Server stopped gracefully"
-                break
-              fi
-              sleep 1
-            done
-            # Force kill if still running
-            kill -9 $PID 2>/dev/null || echo "Process $PID already stopped"
-            rm -f server.pid
-          fi
-          # Kill any remaining processes on port 8080
-          pkill -f "go run examplemain/main.go" || echo "No remaining processes found"
-          echo "Cleanup completed"
-        if: always()
+          RUNGO_PID=$!
+          make runjs
+          kill $RUNGO_PID
