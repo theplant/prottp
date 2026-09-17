@@ -42,14 +42,14 @@ func testUnaryServerInterceptor(t *testing.T, tc *testInterceptorCase) {
 				t.Fatalf("name: %s\nwant err: %s\nbut get: %s\n", tc.name, tc.runtimeErr, r)
 			}
 
-			if !strings.Contains(actualLog, tc.exceptLog) {
+			if !strings.Contains(actualLog, moduleRelative(tc.exceptLog)) {
 				t.Fatalf("name: %s\nwant actual: %s\ncontains: %s\n", tc.name, actualLog, tc.exceptLog)
 			}
 
 			return
 		}
 
-		if actualLog != tc.exceptLog+"\n" {
+		if oneSpace(actualLog) != oneSpace(tc.exceptLog+"\n") {
 			t.Fatalf("name: %s\nexcept: %s\nactual: %s\n", tc.name, tc.exceptLog, actualLog)
 		}
 	}()
@@ -248,4 +248,31 @@ func newLogger(buf *bytes.Buffer) appkitlog.Logger {
 		Logger: l,
 	}
 	return lg
+}
+
+// oneSpace collapses every run of whitespace to a single space.
+//
+// These logs carry protobuf messages rendered through the text format, and that
+// format inserts a deliberately randomised one-or-two spaces between fields
+// (protobuf-go's internal/detrand) precisely so that nobody parses it. The
+// choice is derived from the built binary, so it flips on any dependency
+// change: the "request sucess with some miss fields" case passed at grpc
+// 1.79.3 and failed at 1.83.2 with every field value identical, differing only
+// in that spacing. Comparing whitespace-insensitively makes the assertion
+// depend on the field values, which is what it is actually about.
+func oneSpace(s string) string {
+	return strings.Join(strings.Fields(s), " ")
+}
+
+// moduleRelative drops this module's path prefix from an expected stack-trace
+// location.
+//
+// A stack trace names the absolute file of each frame, unless the binary was
+// built with -trimpath, in which case it names the module-qualified one. The
+// expectations here are written in the module-qualified form, so asserting them
+// verbatim only passes under -trimpath. Trimming the prefix leaves
+// "trace/trace_test.go:NNN", a substring of both forms, and the prefix was
+// never part of what the assertion checks.
+func moduleRelative(want string) string {
+	return strings.TrimPrefix(want, "github.com/theplant/prottp/")
 }
