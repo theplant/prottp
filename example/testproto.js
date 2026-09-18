@@ -38,7 +38,7 @@ export const example = $root.example = (() => {
         function SearchRequest(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -87,14 +87,18 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        SearchRequest.encode = function encode(message, writer) {
+        SearchRequest.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.query != null && message.hasOwnProperty("query"))
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
+            if (message.query != null && Object.hasOwnProperty.call(message, "query"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.query);
-            if (message.pageNumber != null && message.hasOwnProperty("pageNumber"))
+            if (message.pageNumber != null && Object.hasOwnProperty.call(message, "pageNumber"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.pageNumber);
-            if (message.resultPerPage != null && message.hasOwnProperty("resultPerPage"))
+            if (message.resultPerPage != null && Object.hasOwnProperty.call(message, "resultPerPage"))
                 writer.uint32(/* id 3, wireType 0 =*/24).int32(message.resultPerPage);
             return writer;
         };
@@ -109,7 +113,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         SearchRequest.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -123,26 +127,50 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        SearchRequest.decode = function decode(reader, length) {
+        SearchRequest.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.SearchRequest();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.SearchRequest();
             while (reader.pos < end) {
                 let tag = reader.uint32();
+                if (tag === error)
+                    break;
                 switch (tag >>> 3) {
-                case 1:
-                    message.query = reader.string();
-                    break;
-                case 2:
-                    message.pageNumber = reader.int32();
-                    break;
-                case 3:
-                    message.resultPerPage = reader.int32();
-                    break;
+                case 1: {
+                        message.query = reader.string();
+                        break;
+                    }
+                case 2: {
+                        message.pageNumber = reader.int32();
+                        break;
+                    }
+                case 3: {
+                        message.resultPerPage = reader.int32();
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -171,16 +199,20 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        SearchRequest.verify = function verify(message) {
+        SearchRequest.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.query != null && message.hasOwnProperty("query"))
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.query != null && Object.hasOwnProperty.call(message, "query"))
                 if (!$util.isString(message.query))
                     return "query: string expected";
-            if (message.pageNumber != null && message.hasOwnProperty("pageNumber"))
+            if (message.pageNumber != null && Object.hasOwnProperty.call(message, "pageNumber"))
                 if (!$util.isInteger(message.pageNumber))
                     return "pageNumber: integer expected";
-            if (message.resultPerPage != null && message.hasOwnProperty("resultPerPage"))
+            if (message.resultPerPage != null && Object.hasOwnProperty.call(message, "resultPerPage"))
                 if (!$util.isInteger(message.resultPerPage))
                     return "resultPerPage: integer expected";
             return null;
@@ -194,9 +226,15 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.SearchRequest} SearchRequest
          */
-        SearchRequest.fromObject = function fromObject(object) {
+        SearchRequest.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.SearchRequest)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.SearchRequest: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.SearchRequest();
             if (object.query != null)
                 message.query = String(object.query);
@@ -216,20 +254,24 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        SearchRequest.toObject = function toObject(message, options) {
+        SearchRequest.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.defaults) {
                 object.query = "";
                 object.pageNumber = 0;
                 object.resultPerPage = 0;
             }
-            if (message.query != null && message.hasOwnProperty("query"))
+            if (message.query != null && Object.hasOwnProperty.call(message, "query"))
                 object.query = message.query;
-            if (message.pageNumber != null && message.hasOwnProperty("pageNumber"))
+            if (message.pageNumber != null && Object.hasOwnProperty.call(message, "pageNumber"))
                 object.pageNumber = message.pageNumber;
-            if (message.resultPerPage != null && message.hasOwnProperty("resultPerPage"))
+            if (message.resultPerPage != null && Object.hasOwnProperty.call(message, "resultPerPage"))
                 object.resultPerPage = message.resultPerPage;
             return object;
         };
@@ -243,6 +285,21 @@ export const example = $root.example = (() => {
          */
         SearchRequest.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for SearchRequest
+         * @function getTypeUrl
+         * @memberof example.SearchRequest
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        SearchRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.SearchRequest";
         };
 
         return SearchRequest;
@@ -269,7 +326,7 @@ export const example = $root.example = (() => {
             this.result = [];
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -302,12 +359,16 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        SearchResponse.encode = function encode(message, writer) {
+        SearchResponse.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             if (message.result != null && message.result.length)
                 for (let i = 0; i < message.result.length; ++i)
-                    $root.example.Result.encode(message.result[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    $root.example.Result.encode(message.result[i], writer.uint32(/* id 1, wireType 2 =*/10).fork(), q + 1).ldelim();
             return writer;
         };
 
@@ -321,7 +382,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         SearchResponse.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -335,22 +396,44 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        SearchResponse.decode = function decode(reader, length) {
+        SearchResponse.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.SearchResponse();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.SearchResponse();
             while (reader.pos < end) {
                 let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    if (!(message.result && message.result.length))
-                        message.result = [];
-                    message.result.push($root.example.Result.decode(reader, reader.uint32()));
+                if (tag === error)
                     break;
+                switch (tag >>> 3) {
+                case 1: {
+                        if (!(message.result && message.result.length))
+                            message.result = [];
+                        message.result.push($root.example.Result.decode(reader, reader.uint32(), undefined, long + 1));
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -379,14 +462,18 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        SearchResponse.verify = function verify(message) {
+        SearchResponse.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.result != null && message.hasOwnProperty("result")) {
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.result != null && Object.hasOwnProperty.call(message, "result")) {
                 if (!Array.isArray(message.result))
                     return "result: array expected";
                 for (let i = 0; i < message.result.length; ++i) {
-                    let error = $root.example.Result.verify(message.result[i]);
+                    let error = $root.example.Result.verify(message.result[i], long + 1);
                     if (error)
                         return "result." + error;
                 }
@@ -402,18 +489,24 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.SearchResponse} SearchResponse
          */
-        SearchResponse.fromObject = function fromObject(object) {
+        SearchResponse.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.SearchResponse)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.SearchResponse: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.SearchResponse();
             if (object.result) {
                 if (!Array.isArray(object.result))
                     throw TypeError(".example.SearchResponse.result: array expected");
                 message.result = [];
                 for (let i = 0; i < object.result.length; ++i) {
-                    if (typeof object.result[i] !== "object")
+                    if (!$util.isObject(object.result[i]))
                         throw TypeError(".example.SearchResponse.result: object expected");
-                    message.result[i] = $root.example.Result.fromObject(object.result[i]);
+                    message.result[i] = $root.example.Result.fromObject(object.result[i], long + 1);
                 }
             }
             return message;
@@ -428,16 +521,20 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        SearchResponse.toObject = function toObject(message, options) {
+        SearchResponse.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.arrays || options.defaults)
                 object.result = [];
             if (message.result && message.result.length) {
                 object.result = [];
                 for (let j = 0; j < message.result.length; ++j)
-                    object.result[j] = $root.example.Result.toObject(message.result[j], options);
+                    object.result[j] = $root.example.Result.toObject(message.result[j], options, q + 1);
             }
             return object;
         };
@@ -451,6 +548,21 @@ export const example = $root.example = (() => {
          */
         SearchResponse.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for SearchResponse
+         * @function getTypeUrl
+         * @memberof example.SearchResponse
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        SearchResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.SearchResponse";
         };
 
         return SearchResponse;
@@ -477,7 +589,7 @@ export const example = $root.example = (() => {
         function SearchError(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -518,12 +630,16 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        SearchError.encode = function encode(message, writer) {
+        SearchError.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.field != null && message.hasOwnProperty("field"))
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
+            if (message.field != null && Object.hasOwnProperty.call(message, "field"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.field);
-            if (message.errorCount != null && message.hasOwnProperty("errorCount"))
+            if (message.errorCount != null && Object.hasOwnProperty.call(message, "errorCount"))
                 writer.uint32(/* id 2, wireType 0 =*/16).int32(message.errorCount);
             return writer;
         };
@@ -538,7 +654,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         SearchError.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -552,23 +668,46 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        SearchError.decode = function decode(reader, length) {
+        SearchError.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.SearchError();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.SearchError();
             while (reader.pos < end) {
                 let tag = reader.uint32();
+                if (tag === error)
+                    break;
                 switch (tag >>> 3) {
-                case 1:
-                    message.field = reader.string();
-                    break;
-                case 2:
-                    message.errorCount = reader.int32();
-                    break;
+                case 1: {
+                        message.field = reader.string();
+                        break;
+                    }
+                case 2: {
+                        message.errorCount = reader.int32();
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -597,13 +736,17 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        SearchError.verify = function verify(message) {
+        SearchError.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.field != null && message.hasOwnProperty("field"))
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.field != null && Object.hasOwnProperty.call(message, "field"))
                 if (!$util.isString(message.field))
                     return "field: string expected";
-            if (message.errorCount != null && message.hasOwnProperty("errorCount"))
+            if (message.errorCount != null && Object.hasOwnProperty.call(message, "errorCount"))
                 if (!$util.isInteger(message.errorCount))
                     return "errorCount: integer expected";
             return null;
@@ -617,9 +760,15 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.SearchError} SearchError
          */
-        SearchError.fromObject = function fromObject(object) {
+        SearchError.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.SearchError)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.SearchError: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.SearchError();
             if (object.field != null)
                 message.field = String(object.field);
@@ -637,17 +786,21 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        SearchError.toObject = function toObject(message, options) {
+        SearchError.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.defaults) {
                 object.field = "";
                 object.errorCount = 0;
             }
-            if (message.field != null && message.hasOwnProperty("field"))
+            if (message.field != null && Object.hasOwnProperty.call(message, "field"))
                 object.field = message.field;
-            if (message.errorCount != null && message.hasOwnProperty("errorCount"))
+            if (message.errorCount != null && Object.hasOwnProperty.call(message, "errorCount"))
                 object.errorCount = message.errorCount;
             return object;
         };
@@ -661,6 +814,21 @@ export const example = $root.example = (() => {
          */
         SearchError.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for SearchError
+         * @function getTypeUrl
+         * @memberof example.SearchError
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        SearchError.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.SearchError";
         };
 
         return SearchError;
@@ -689,7 +857,7 @@ export const example = $root.example = (() => {
         function Result(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -746,16 +914,20 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Result.encode = function encode(message, writer) {
+        Result.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.url != null && message.hasOwnProperty("url"))
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
+            if (message.url != null && Object.hasOwnProperty.call(message, "url"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.url);
-            if (message.title != null && message.hasOwnProperty("title"))
+            if (message.title != null && Object.hasOwnProperty.call(message, "title"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.title);
-            if (message.snippets != null && message.hasOwnProperty("snippets"))
+            if (message.snippets != null && Object.hasOwnProperty.call(message, "snippets"))
                 writer.uint32(/* id 3, wireType 2 =*/26).string(message.snippets);
-            if (message.someSnakedName != null && message.hasOwnProperty("someSnakedName"))
+            if (message.someSnakedName != null && Object.hasOwnProperty.call(message, "someSnakedName"))
                 writer.uint32(/* id 4, wireType 0 =*/32).int32(message.someSnakedName);
             return writer;
         };
@@ -770,7 +942,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         Result.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -784,29 +956,54 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Result.decode = function decode(reader, length) {
+        Result.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.Result();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.Result();
             while (reader.pos < end) {
                 let tag = reader.uint32();
+                if (tag === error)
+                    break;
                 switch (tag >>> 3) {
-                case 1:
-                    message.url = reader.string();
-                    break;
-                case 2:
-                    message.title = reader.string();
-                    break;
-                case 3:
-                    message.snippets = reader.string();
-                    break;
-                case 4:
-                    message.someSnakedName = reader.int32();
-                    break;
+                case 1: {
+                        message.url = reader.string();
+                        break;
+                    }
+                case 2: {
+                        message.title = reader.string();
+                        break;
+                    }
+                case 3: {
+                        message.snippets = reader.string();
+                        break;
+                    }
+                case 4: {
+                        message.someSnakedName = reader.int32();
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -835,19 +1032,23 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        Result.verify = function verify(message) {
+        Result.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.url != null && message.hasOwnProperty("url"))
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.url != null && Object.hasOwnProperty.call(message, "url"))
                 if (!$util.isString(message.url))
                     return "url: string expected";
-            if (message.title != null && message.hasOwnProperty("title"))
+            if (message.title != null && Object.hasOwnProperty.call(message, "title"))
                 if (!$util.isString(message.title))
                     return "title: string expected";
-            if (message.snippets != null && message.hasOwnProperty("snippets"))
+            if (message.snippets != null && Object.hasOwnProperty.call(message, "snippets"))
                 if (!$util.isString(message.snippets))
                     return "snippets: string expected";
-            if (message.someSnakedName != null && message.hasOwnProperty("someSnakedName"))
+            if (message.someSnakedName != null && Object.hasOwnProperty.call(message, "someSnakedName"))
                 if (!$util.isInteger(message.someSnakedName))
                     return "someSnakedName: integer expected";
             return null;
@@ -861,9 +1062,15 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.Result} Result
          */
-        Result.fromObject = function fromObject(object) {
+        Result.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.Result)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.Result: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.Result();
             if (object.url != null)
                 message.url = String(object.url);
@@ -885,9 +1092,13 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Result.toObject = function toObject(message, options) {
+        Result.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.defaults) {
                 object.url = "";
@@ -895,13 +1106,13 @@ export const example = $root.example = (() => {
                 object.snippets = "";
                 object.someSnakedName = 0;
             }
-            if (message.url != null && message.hasOwnProperty("url"))
+            if (message.url != null && Object.hasOwnProperty.call(message, "url"))
                 object.url = message.url;
-            if (message.title != null && message.hasOwnProperty("title"))
+            if (message.title != null && Object.hasOwnProperty.call(message, "title"))
                 object.title = message.title;
-            if (message.snippets != null && message.hasOwnProperty("snippets"))
+            if (message.snippets != null && Object.hasOwnProperty.call(message, "snippets"))
                 object.snippets = message.snippets;
-            if (message.someSnakedName != null && message.hasOwnProperty("someSnakedName"))
+            if (message.someSnakedName != null && Object.hasOwnProperty.call(message, "someSnakedName"))
                 object.someSnakedName = message.someSnakedName;
             return object;
         };
@@ -915,6 +1126,21 @@ export const example = $root.example = (() => {
          */
         Result.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for Result
+         * @function getTypeUrl
+         * @memberof example.Result
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        Result.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.Result";
         };
 
         return Result;
@@ -972,7 +1198,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(SearchService.prototype.search = function search(request, callback) {
-            return this.rpcCall(search, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, search, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
         }, "name", { value: "Search" });
 
         /**
@@ -1005,7 +1231,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(SearchService.prototype.searchAlt = function searchAlt(request, callback) {
-            return this.rpcCall(searchAlt, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, searchAlt, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
         }, "name", { value: "SearchAlt" });
 
         /**
@@ -1038,7 +1264,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(SearchService.prototype.searchReturnError = function searchReturnError(request, callback) {
-            return this.rpcCall(searchReturnError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, searchReturnError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
         }, "name", { value: "SearchReturnError" });
 
         /**
@@ -1071,7 +1297,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(SearchService.prototype.searchValidateError = function searchValidateError(request, callback) {
-            return this.rpcCall(searchValidateError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, searchValidateError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
         }, "name", { value: "SearchValidateError" });
 
         /**
@@ -1104,7 +1330,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(SearchService.prototype.searchReturnNil = function searchReturnNil(request, callback) {
-            return this.rpcCall(searchReturnNil, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, searchReturnNil, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
         }, "name", { value: "SearchReturnNil" });
 
         /**
@@ -1137,7 +1363,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(SearchService.prototype.searchWithUnexpectedError = function searchWithUnexpectedError(request, callback) {
-            return this.rpcCall(searchWithUnexpectedError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, searchWithUnexpectedError, $root.example.SearchRequest, $root.example.SearchResponse, request, callback);
         }, "name", { value: "SearchWithUnexpectedError" });
 
         /**
@@ -1173,7 +1399,7 @@ export const example = $root.example = (() => {
         function AccountInfo(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -1206,10 +1432,14 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        AccountInfo.encode = function encode(message, writer) {
+        AccountInfo.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.name != null && message.hasOwnProperty("name"))
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
+            if (message.name != null && Object.hasOwnProperty.call(message, "name"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
             return writer;
         };
@@ -1224,7 +1454,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         AccountInfo.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -1238,20 +1468,42 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        AccountInfo.decode = function decode(reader, length) {
+        AccountInfo.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.AccountInfo();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.AccountInfo();
             while (reader.pos < end) {
                 let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.name = reader.string();
+                if (tag === error)
                     break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.name = reader.string();
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -1280,10 +1532,14 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        AccountInfo.verify = function verify(message) {
+        AccountInfo.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.name != null && message.hasOwnProperty("name"))
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.name != null && Object.hasOwnProperty.call(message, "name"))
                 if (!$util.isString(message.name))
                     return "name: string expected";
             return null;
@@ -1297,9 +1553,15 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.AccountInfo} AccountInfo
          */
-        AccountInfo.fromObject = function fromObject(object) {
+        AccountInfo.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.AccountInfo)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.AccountInfo: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.AccountInfo();
             if (object.name != null)
                 message.name = String(object.name);
@@ -1315,13 +1577,17 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        AccountInfo.toObject = function toObject(message, options) {
+        AccountInfo.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.defaults)
                 object.name = "";
-            if (message.name != null && message.hasOwnProperty("name"))
+            if (message.name != null && Object.hasOwnProperty.call(message, "name"))
                 object.name = message.name;
             return object;
         };
@@ -1335,6 +1601,21 @@ export const example = $root.example = (() => {
          */
         AccountInfo.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for AccountInfo
+         * @function getTypeUrl
+         * @memberof example.AccountInfo
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        AccountInfo.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.AccountInfo";
         };
 
         return AccountInfo;
@@ -1360,7 +1641,7 @@ export const example = $root.example = (() => {
         function GetAccountInfoParams(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -1393,10 +1674,14 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        GetAccountInfoParams.encode = function encode(message, writer) {
+        GetAccountInfoParams.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
             return writer;
         };
@@ -1411,7 +1696,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         GetAccountInfoParams.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -1425,20 +1710,42 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        GetAccountInfoParams.decode = function decode(reader, length) {
+        GetAccountInfoParams.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.GetAccountInfoParams();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.GetAccountInfoParams();
             while (reader.pos < end) {
                 let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.id = reader.string();
+                if (tag === error)
                     break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.id = reader.string();
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -1467,10 +1774,14 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        GetAccountInfoParams.verify = function verify(message) {
+        GetAccountInfoParams.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
                 if (!$util.isString(message.id))
                     return "id: string expected";
             return null;
@@ -1484,9 +1795,15 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.GetAccountInfoParams} GetAccountInfoParams
          */
-        GetAccountInfoParams.fromObject = function fromObject(object) {
+        GetAccountInfoParams.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.GetAccountInfoParams)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.GetAccountInfoParams: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.GetAccountInfoParams();
             if (object.id != null)
                 message.id = String(object.id);
@@ -1502,13 +1819,17 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        GetAccountInfoParams.toObject = function toObject(message, options) {
+        GetAccountInfoParams.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.defaults)
                 object.id = "";
-            if (message.id != null && message.hasOwnProperty("id"))
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
                 object.id = message.id;
             return object;
         };
@@ -1522,6 +1843,21 @@ export const example = $root.example = (() => {
          */
         GetAccountInfoParams.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for GetAccountInfoParams
+         * @function getTypeUrl
+         * @memberof example.GetAccountInfoParams
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GetAccountInfoParams.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.GetAccountInfoParams";
         };
 
         return GetAccountInfoParams;
@@ -1548,7 +1884,7 @@ export const example = $root.example = (() => {
         function LoginParams(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -1589,12 +1925,16 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        LoginParams.encode = function encode(message, writer) {
+        LoginParams.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.username != null && message.hasOwnProperty("username"))
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
+            if (message.username != null && Object.hasOwnProperty.call(message, "username"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.username);
-            if (message.password != null && message.hasOwnProperty("password"))
+            if (message.password != null && Object.hasOwnProperty.call(message, "password"))
                 writer.uint32(/* id 2, wireType 2 =*/18).string(message.password);
             return writer;
         };
@@ -1609,7 +1949,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         LoginParams.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -1623,23 +1963,46 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        LoginParams.decode = function decode(reader, length) {
+        LoginParams.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.LoginParams();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.LoginParams();
             while (reader.pos < end) {
                 let tag = reader.uint32();
+                if (tag === error)
+                    break;
                 switch (tag >>> 3) {
-                case 1:
-                    message.username = reader.string();
-                    break;
-                case 2:
-                    message.password = reader.string();
-                    break;
+                case 1: {
+                        message.username = reader.string();
+                        break;
+                    }
+                case 2: {
+                        message.password = reader.string();
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -1668,13 +2031,17 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        LoginParams.verify = function verify(message) {
+        LoginParams.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.username != null && message.hasOwnProperty("username"))
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.username != null && Object.hasOwnProperty.call(message, "username"))
                 if (!$util.isString(message.username))
                     return "username: string expected";
-            if (message.password != null && message.hasOwnProperty("password"))
+            if (message.password != null && Object.hasOwnProperty.call(message, "password"))
                 if (!$util.isString(message.password))
                     return "password: string expected";
             return null;
@@ -1688,9 +2055,15 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.LoginParams} LoginParams
          */
-        LoginParams.fromObject = function fromObject(object) {
+        LoginParams.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.LoginParams)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.LoginParams: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.LoginParams();
             if (object.username != null)
                 message.username = String(object.username);
@@ -1708,17 +2081,21 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        LoginParams.toObject = function toObject(message, options) {
+        LoginParams.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.defaults) {
                 object.username = "";
                 object.password = "";
             }
-            if (message.username != null && message.hasOwnProperty("username"))
+            if (message.username != null && Object.hasOwnProperty.call(message, "username"))
                 object.username = message.username;
-            if (message.password != null && message.hasOwnProperty("password"))
+            if (message.password != null && Object.hasOwnProperty.call(message, "password"))
                 object.password = message.password;
             return object;
         };
@@ -1732,6 +2109,21 @@ export const example = $root.example = (() => {
          */
         LoginParams.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for LoginParams
+         * @function getTypeUrl
+         * @memberof example.LoginParams
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        LoginParams.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.LoginParams";
         };
 
         return LoginParams;
@@ -1757,7 +2149,7 @@ export const example = $root.example = (() => {
         function LoginResult(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
+                    if (properties[keys[i]] != null && keys[i] !== "__proto__")
                         this[keys[i]] = properties[keys[i]];
         }
 
@@ -1790,10 +2182,14 @@ export const example = $root.example = (() => {
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        LoginResult.encode = function encode(message, writer) {
+        LoginResult.encode = function encode(message, writer, q) {
             if (!writer)
                 writer = $Writer.create();
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
                 writer.uint32(/* id 1, wireType 2 =*/10).string(message.status);
             return writer;
         };
@@ -1808,7 +2204,7 @@ export const example = $root.example = (() => {
          * @returns {$protobuf.Writer} Writer
          */
         LoginResult.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
+            return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
         };
 
         /**
@@ -1822,20 +2218,42 @@ export const example = $root.example = (() => {
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        LoginResult.decode = function decode(reader, length) {
+        LoginResult.decode = function decode(reader, length, error, long) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.example.LoginResult();
+            if (long === undefined)
+                long = 0;
+            if (long > $Reader.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
+            let end, message;
+            if (length === undefined)
+                end = reader.len;
+            else {
+                end = reader.pos + length;
+                if (end > reader.len)
+                    throw RangeError("index out of range");
+                length = reader.len;
+                reader.len = end;
+            }
+            message = new $root.example.LoginResult();
             while (reader.pos < end) {
                 let tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.status = reader.string();
+                if (tag === error)
                     break;
+                switch (tag >>> 3) {
+                case 1: {
+                        message.status = reader.string();
+                        break;
+                    }
                 default:
-                    reader.skipType(tag & 7);
+                    reader.skipType(tag & 7, long);
                     break;
                 }
+            }
+            if (length !== undefined) {
+                if (reader.pos !== end)
+                    throw RangeError("index out of range");
+                reader.len = length;
             }
             return message;
         };
@@ -1864,10 +2282,14 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        LoginResult.verify = function verify(message) {
+        LoginResult.verify = function verify(message, long) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                return "maximum nesting depth exceeded";
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
                 if (!$util.isString(message.status))
                     return "status: string expected";
             return null;
@@ -1881,9 +2303,15 @@ export const example = $root.example = (() => {
          * @param {Object.<string,*>} object Plain object
          * @returns {example.LoginResult} LoginResult
          */
-        LoginResult.fromObject = function fromObject(object) {
+        LoginResult.fromObject = function fromObject(object, long) {
             if (object instanceof $root.example.LoginResult)
                 return object;
+            if (!$util.isObject(object))
+                throw TypeError(".example.LoginResult: object expected");
+            if (long === undefined)
+                long = 0;
+            if (long > $util.recursionLimit)
+                throw Error("maximum nesting depth exceeded");
             let message = new $root.example.LoginResult();
             if (object.status != null)
                 message.status = String(object.status);
@@ -1899,13 +2327,17 @@ export const example = $root.example = (() => {
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        LoginResult.toObject = function toObject(message, options) {
+        LoginResult.toObject = function toObject(message, options, q) {
             if (!options)
                 options = {};
+            if (q === undefined)
+                q = 0;
+            if (q > $util.recursionLimit)
+                throw Error("max depth exceeded");
             let object = {};
             if (options.defaults)
                 object.status = "";
-            if (message.status != null && message.hasOwnProperty("status"))
+            if (message.status != null && Object.hasOwnProperty.call(message, "status"))
                 object.status = message.status;
             return object;
         };
@@ -1919,6 +2351,21 @@ export const example = $root.example = (() => {
          */
         LoginResult.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * Gets the default type url for LoginResult
+         * @function getTypeUrl
+         * @memberof example.LoginResult
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        LoginResult.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/example.LoginResult";
         };
 
         return LoginResult;
@@ -1976,7 +2423,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(AccountService.prototype.getAccountInfo = function getAccountInfo(request, callback) {
-            return this.rpcCall(getAccountInfo, $root.example.GetAccountInfoParams, $root.example.AccountInfo, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, getAccountInfo, $root.example.GetAccountInfoParams, $root.example.AccountInfo, request, callback);
         }, "name", { value: "GetAccountInfo" });
 
         /**
@@ -2044,7 +2491,7 @@ export const example = $root.example = (() => {
          * @variation 1
          */
         Object.defineProperty(AuthService.prototype.login = function login(request, callback) {
-            return this.rpcCall(login, $root.example.LoginParams, $root.example.LoginResult, request, callback);
+            return $protobuf.rpc.Service.prototype.rpcCall.call(this, login, $root.example.LoginParams, $root.example.LoginResult, request, callback);
         }, "name", { value: "Login" });
 
         /**
